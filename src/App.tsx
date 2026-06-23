@@ -1,30 +1,39 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-// Providers (تأكد من مساراتها حسب مشروعك)
+// Providers
 import { AuthProvider } from './context/AuthContext';
 import { TenantProvider } from './context/TenantContext';
 
 // Layout
 import AppShell from './components/layout/AppShell';
 
-// Core Pages
+// ==========================================
+// المسارات العامة (تأكد من وجود هذه الأسطر)
+// ==========================================
+import Landing from './pages/Landing';
+import Subscription from './pages/Subscription';
+import Login from './pages/Login';
+
+// ==========================================
+// مسارات لوحة التحكم الأساسية
+// ==========================================
 import Dashboard from './pages/Dashboard';
 import Students from './pages/Students';
 import Teachers from './pages/Teachers';
-import TeacherRev from './pages/TeacherRev'; // كما اتفقنا على اسم الملف
+import TeacherRev from './pages/TeacherRev';
 import Halaqat from './pages/Halaqat';
 import Attendance from './pages/Attendance';
 import Exams from './pages/Exams';
 import News from './pages/News';
 
-// Financial Pages
+// صفحات قسم المالية
 import FinancialOverview from './pages/FinancialOverview';
 import FinancialBudget from './pages/FinancialBudget';
 import FinancialDonations from './pages/FinancialDonations';
 import FinancialExpenses from './pages/FinancialExpenses';
 
-// Settings Pages
+// صفحات الإعدادات
 import SettingsWorkspace from './pages/SettingsWorkspace';
 import SettingsAccounts from './pages/SettingsAccounts';
 import SettingsPreferences from './pages/SettingsPreferences';
@@ -36,19 +45,14 @@ export default function App() {
 		<TenantProvider>
 		  <Routes>
 			
-			{/* ==========================================
-				1. المسارات العامة (بدون شريط جانبي)
-				========================================== */}
-			<Route path="/" element={<Landing />} />
+			{/* 1. المسارات العامة (بدون شريط جانبي) */}
+<Route path="/" element={<Landing />} />
+			<Route path="/subscription" element={<Subscription />} />
 			<Route path="/login" element={<Login />} />
 
-			{/* ==========================================
-				2. مسارات لوحة التحكم (مع الشريط الجانبي)
-				========================================== */}
+			{/* 2. مسارات لوحة التحكم (مع الشريط الجانبي) */}
 			<Route element={<AppShell />}>
-			  {/* لاحظ أن لوحة القيادة أصبح مسارها /dashboard بدلاً من / */}
 			  <Route path="/dashboard" element={<Dashboard />} />
-			  
 			  <Route path="/students" element={<Students />} />
 			  <Route path="/teachers" element={<Teachers />} />
 			  <Route path="/teacher-rev" element={<TeacherRev />} />
