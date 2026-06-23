@@ -101,7 +101,10 @@ export default function Login() {
 	  });
 	  if (error) throw error;
 	  triggerSuccessUI('تم تسجيل الدخول بنجاح. جاري التحويل...');
-	  setTimeout(() => { window.location.href = '/'; }, 800);
+	  
+	  // تم إصلاح التوجيه هنا ليذهب إلى لوحة التحكم بدلاً من الرئيسية
+	  setTimeout(() => { navigate('/dashboard'); }, 800);
+	  
 	} catch (err: any) {
 	  triggerErrorUI(err.message || 'بيانات الدخول غير صحيحة. حاول مرة أخرى.');
 	} finally {
@@ -158,9 +161,12 @@ export default function Login() {
 		  
 		  {/* Logo Header Updated to align perfectly and center */}
 		  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', textAlign: 'right', marginBottom: '40px' }}>
-			<div style={{ width: '68px', height: '68px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: theme.white, borderRadius: '16px', border: `1px solid ${theme.gray200}`, boxShadow: theme.shadowSm, flexShrink: 0 }}>
+			
+			{/* تم تحويل الشعار إلى شكل دائري هنا */}
+			<div style={{ width: '68px', height: '68px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: theme.white, borderRadius: '50%', overflow: 'hidden', border: `1px solid ${theme.gray200}`, boxShadow: theme.shadowSm, flexShrink: 0 }}>
 			  <img src="/logo.png" alt="شعار بن عباس" style={{ height: '48px', width: '48px', objectFit: 'contain' }} onError={(e) => { e.currentTarget.style.display = 'none'; }} />
 			</div>
+
 			<div>
 			  <h1 style={{ fontSize: '24px', fontWeight: 800, letterSpacing: '-0.025em', color: theme.gray900, margin: '0 0 4px 0', lineHeight: 1 }}>
 				نظام <span style={{ color: theme.emerald }}>إسناد</span>

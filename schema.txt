@@ -90,6 +90,17 @@ create table public.profiles (
   constraint profiles_role_id_fkey foreign KEY (role_id) references roles (id)
 ) TABLESPACE pg_default;
 
+create table public.students (
+  id uuid not null default gen_random_uuid (),
+  name text not null,
+  age integer null,
+  level text null,
+  phone text null,
+  registration_date date null default now(),
+  created_at timestamp with time zone null default now(),
+  constraint students_pkey primary key (id)
+) TABLESPACE pg_default;
+
 create table public.roles (
   id uuid not null default gen_random_uuid (),
   role_name text not null,

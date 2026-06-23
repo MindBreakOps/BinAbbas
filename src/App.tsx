@@ -26,6 +26,8 @@ import Halaqat from './pages/Halaqat';
 import Attendance from './pages/Attendance';
 import Exams from './pages/Exams';
 import News from './pages/News';
+import TopStudents from './pages/TopStudents';
+import Certificates from './pages/Certificates';
 
 // صفحات قسم المالية
 import FinancialOverview from './pages/FinancialOverview';
@@ -60,6 +62,8 @@ export default function App() {
 			  <Route path="/attendance" element={<Attendance />} />
 			  <Route path="/exams" element={<Exams />} />
 			  <Route path="/news" element={<News />} />
+				  <Route path="/top-students" element={<TopStudents />} />
+				  <Route path="/certificates" element={<Certificates />} />
 
 			  <Route path="/financials/overview" element={<FinancialOverview />} />
 			  <Route path="/financials/budget" element={<FinancialBudget />} />

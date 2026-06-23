@@ -1,183 +1,166 @@
 import React, { useState, useEffect } from 'react';
-import { useTenant } from '../context/TenantContext';
 import { supabase } from '../lib/supabase';
-import { Icon } from '../components/ui/Icons';
 
 export default function Dashboard() {
-  const { workspace } = useTenant();
   const [isLoading, setIsLoading] = useState(true);
+  const [prayers, setPrayers] = useState<any>(null);
   
-  // Dashboard State
   const [stats, setStats] = useState({
-	studentsCount: 0,
-	halaqatCount: 0,
-	totalIncome: 0,
-	totalExpense: 0,
+	totalStudents: 0,
+	monthSessions: 0,
+	monthAvgExam: 0,
+	bestHalaqa: '—',
   });
-  const [recentNews, setRecentNews] = useState<any[]>([]);
 
   useEffect(() => {
 	const fetchDashboardData = async () => {
-	  if (!workspace) return;
 	  setIsLoading(true);
-
 	  try {
-		// 1. جلب بيانات الحلقات لحساب عدد الطلاب والحلقات 
-		const { data: halaqatData } = await supabase
-		  .from('halaqat')
-		  .select('halqa, student')
-		  .eq('workspace_id', workspace.id);
+		// 1. مواقيت الصلاة
+		fetch('https://api.aladhan.com/v1/timingsByCity?city=Riyadh&country=Saudi%20Arabia&method=4')
+		  .then(res => res.json())
+		  .then(data => { if (data.data) setPrayers(data.data.timings); })
+		  .catch(() => {});
 
-		let uniqueStudents = new Set();
-		let uniqueHalaqat = new Set();
+		const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+
+		// 2. إجمالي الطلاب
+		const { count: stdCount } = await supabase.from('students').select('*', { count: 'exact', head: true });
 		
-		if (halaqatData) {
-		  halaqatData.forEach(record => {
-			if (record.student) uniqueStudents.add(record.student);
-			if (record.halqa) uniqueHalaqat.add(record.halqa);
-		  });
-		}
-
-		// 2. جلب السجلات المالية لحساب الميزانية 
-		const { data: finData } = await supabase
-		  .from('financials')
-		  .select('amount, type')
-		  .eq('workspace_id', workspace.id);
-
-		let income = 0;
-		let expense = 0;
+		// 3. جلسات الشهر الحالي
+		const { data: halaqat } = await supabase.from('halaqat').select('date, halqa');
+		const monthHalaqat = halaqat?.filter(h => h.date?.startsWith(currentMonth)) || [];
 		
-		if (finData) {
-		  finData.forEach(record => {
-			// افتراض أن حقل type يحتوي على كلمات تدل على النوع 
-			if (record.type === 'وارد' || record.type === 'تبرع') income += Number(record.amount || 0);
-			else expense += Number(record.amount || 0);
+		// 4. اختبارات الشهر الحالي
+		const { data: exams } = await supabase.from('monthly_exams').select('exam_month, total, halqa_name');
+		const monthExams = exams?.filter(e => e.exam_month === currentMonth) || [];
+		
+		let avgScore = 0;
+		let bestHalqaName = '—';
+
+		if (monthExams.length > 0) {
+		  avgScore = Math.round(monthExams.reduce((sum, e) => sum + (e.total || 0), 0) / monthExams.length);
+		  
+		  const halqaScores: Record<string, number[]> = {};
+		  monthExams.forEach(e => {
+			const h = e.halqa_name || 'غير محدد';
+			if (!halqaScores[h]) halqaScores[h] = [];
+			halqaScores[h].push(e.total || 0);
 		  });
+
+		  let maxAvg = -1;
+		  for (const [hName, scores] of Object.entries(halqaScores)) {
+			const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+			if (avg > maxAvg) {
+			  maxAvg = avg;
+			  bestHalqaName = hName;
+			}
+		  }
 		}
 
 		setStats({
-		  studentsCount: uniqueStudents.size,
-		  halaqatCount: uniqueHalaqat.size,
-		  totalIncome: income,
-		  totalExpense: expense,
+		  totalStudents: stdCount || 0,
+		  monthSessions: monthHalaqat.length,
+		  monthAvgExam: avgScore,
+		  bestHalaqa: bestHalqaName
 		});
 
-		// 3. جلب آخر الأخبار من جدول newspaper 
-		const { data: newsData } = await supabase
-		  .from('newspaper')
-		  .select('*')
-		  .eq('workspace_id', workspace.id)
-		  .order('created_at', { ascending: false })
-		  .limit(3);
-
-		if (newsData) setRecentNews(newsData);
-
 	  } catch (error) {
-		console.error("Error fetching dashboard data:", error);
+		console.error("Dashboard Error:", error);
 	  } finally {
 		setIsLoading(false);
 	  }
 	};
 
 	fetchDashboardData();
-  }, [workspace]);
+  }, []);
 
-  // Inline CSS
   const styles: { [key: string]: React.CSSProperties } = {
 	header: { marginBottom: '32px' },
-	title: { fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 8px 0' },
-	subtitle: { fontSize: '1rem', color: 'var(--text-secondary)', margin: 0 },
-	statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '24px', marginBottom: '32px' },
-	statCard: { backgroundColor: 'var(--bg-card)', padding: '24px', borderRadius: '16px', border: '1px solid var(--border-subtle)', boxShadow: 'var(--shadow-sm)', display: 'flex', alignItems: 'center', gap: '16px' },
-	iconWrap: { display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '12px' },
-	statInfo: { display: 'flex', flexDirection: 'column' },
-	statLabel: { fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '4px' },
-	statValue: { fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' },
-	contentGrid: { display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' },
-	card: { backgroundColor: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-subtle)', padding: '24px', boxShadow: 'var(--shadow-sm)' },
-	cardTitle: { fontSize: '1.1rem', fontWeight: 800, color: 'var(--forest-dark)', margin: '0 0 20px 0', paddingBottom: '12px', borderBottom: '1px solid var(--border-subtle)' },
-	newsItem: { padding: '16px', backgroundColor: 'var(--bg-app)', borderRadius: '8px', marginBottom: '12px', border: '1px solid var(--border-subtle)' },
-	newsDate: { fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }
+	title: { fontSize: '1.5rem', fontWeight: 800, color: '#111827', margin: '0 0 8px 0' },
+	subtitle: { fontSize: '0.85rem', color: '#6b7280', margin: 0 },
+	sectionLabel: { fontSize: '0.75rem', fontWeight: 800, color: '#059669', letterSpacing: '0.5px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' },
+	
+	// تصميم بطاقات Operix بالضبط (زوايا طبيعية 12px، إطار رفيع، وظل خفيف جداً)
+	topCardsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', marginBottom: '32px' },
+	card: { backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', padding: '20px', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
+	cardTopLine: { position: 'absolute', top: 0, left: 0, right: 0, height: '4px' },
+	cardHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' },
+	cardTitle: { fontSize: '0.7rem', fontWeight: 800, color: '#6b7280', margin: 0, textTransform: 'uppercase' },
+	cardValue: { fontSize: '1.8rem', fontWeight: 800, color: '#111827', margin: 0 },
+	
+	// القسم السفلي (مواقيت الصلاة كمخطط زمني)
+	bottomGrid: { display: 'grid', gridTemplateColumns: '1fr', gap: '24px' },
+	panel: { backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
+	panelTitle: { fontSize: '1rem', fontWeight: 800, color: '#111827', margin: '0 0 24px 0' },
+	prayerRow: { display: 'flex', justifyContent: 'space-between', padding: '16px 0', borderBottom: '1px solid #f3f4f6' }
   };
 
-  const today = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
-	day: 'numeric', month: 'long', year: 'numeric', weekday: 'long'
-  }).format(new Date());
-
-  if (isLoading) return <div style={{ padding: '40px', textAlign: 'center' }}>جاري تجميع البيانات ...</div>;
+  if (isLoading) return <p style={{ padding: '24px', color: '#6b7280' }}>جاري جلب المؤشرات الحية...</p>;
 
   return (
 	<div>
 	  <div style={styles.header}>
-		<h1 style={styles.title}>لوحة القيادة</h1>
-		<p style={styles.subtitle}>{today}</p>
+		<h1 style={styles.title}>التحليلات المؤسسية</h1>
+		<p style={styles.subtitle}>مؤشرات الأداء الأكاديمي والعمليات المجمعة في الوقت الفعلي</p>
 	  </div>
 
-	  <div style={styles.statsGrid}>
-		<div style={styles.statCard}>
-		  <div style={{...styles.iconWrap, backgroundColor: 'var(--forest-light)', color: 'var(--forest-green)'}}>
-			<Icon name="users" size={24} />
-		  </div>
-		  <div style={styles.statInfo}>
-			<span style={styles.statLabel}>إجمالي الطلاب</span>
-			<span style={styles.statValue}>{stats.studentsCount}</span>
-		  </div>
-		</div>
-
-		<div style={styles.statCard}>
-		  <div style={{...styles.iconWrap, backgroundColor: '#f0f9ff', color: '#0369a1'}}>
-			<Icon name="book" size={24} />
-		  </div>
-		  <div style={styles.statInfo}>
-			<span style={styles.statLabel}>الحلقات النشطة</span>
-			<span style={styles.statValue}>{stats.halaqatCount}</span>
-		  </div>
-		</div>
-
-		<div style={styles.statCard}>
-		  <div style={{...styles.iconWrap, backgroundColor: '#fef2f2', color: '#b91c1c'}}>
-			<Icon name="money" size={24} />
-		  </div>
-		  <div style={styles.statInfo}>
-			<span style={styles.statLabel}>المصروفات</span>
-			<span style={styles.statValue}>{stats.totalExpense} </span>
-		  </div>
-		</div>
-		
-		<div style={styles.statCard}>
-		  <div style={{...styles.iconWrap, backgroundColor: '#f0fdf4', color: '#15803d'}}>
-			<Icon name="money" size={24} />
-		  </div>
-		  <div style={styles.statInfo}>
-			<span style={styles.statLabel}>الرصيد المتاح</span>
-			<span style={styles.statValue}>{stats.totalIncome - stats.totalExpense} </span>
-		  </div>
-		</div>
+	  <div style={styles.sectionLabel}>
+		<span>$</span> PERFORMANCE OVERVIEW
 	  </div>
 
-	  <div style={styles.contentGrid}>
+	  <div style={styles.topCardsGrid}>
+		{/* البطاقة 1: خط أخضر */}
 		<div style={styles.card}>
-		  <h3 style={styles.cardTitle}>آخر الأخبار والتعاميم</h3>
-		  {recentNews.length === 0 ? (
-			<p style={{ color: 'var(--text-secondary)' }}>لا توجد أخبار منشورة.</p>
+		  <div style={{ ...styles.cardTopLine, backgroundColor: '#10b981' }}></div>
+		  <div style={styles.cardHeader}>
+			<h4 style={styles.cardTitle}>إجمالي الطلاب</h4>
+		  </div>
+		  <p style={styles.cardValue}>{stats.totalStudents}</p>
+		</div>
+
+		{/* البطاقة 2: خط أحمر */}
+		<div style={styles.card}>
+		  <div style={{ ...styles.cardTopLine, backgroundColor: '#ef4444' }}></div>
+		  <div style={styles.cardHeader}>
+			<h4 style={styles.cardTitle}>جلسات هذا الشهر</h4>
+		  </div>
+		  <p style={styles.cardValue}>{stats.monthSessions}</p>
+		</div>
+
+		{/* البطاقة 3: خط أصفر */}
+		<div style={styles.card}>
+		  <div style={{ ...styles.cardTopLine, backgroundColor: '#f59e0b' }}></div>
+		  <div style={styles.cardHeader}>
+			<h4 style={styles.cardTitle}>متوسط درجات الشهر</h4>
+		  </div>
+		  <p style={styles.cardValue}>{stats.monthAvgExam}%</p>
+		</div>
+
+		{/* البطاقة 4: خط رمادي */}
+		<div style={styles.card}>
+		  <div style={{ ...styles.cardTopLine, backgroundColor: '#9ca3af' }}></div>
+		  <div style={styles.cardHeader}>
+			<h4 style={styles.cardTitle}>أفضل حلقة بالشهر</h4>
+		  </div>
+		  <p style={{...styles.cardValue, fontSize: '1.3rem', marginTop: '6px'}}>{stats.bestHalaqa}</p>
+		</div>
+	  </div>
+
+	  <div style={styles.bottomGrid}>
+		<div style={styles.panel}>
+		  <h3 style={styles.panelTitle}>جدولة العمليات اليومية (مواقيت الصلاة - الرياض)</h3>
+		  {prayers ? (
+			<div style={{ display: 'flex', flexDirection: 'column' }}>
+			  <div style={styles.prayerRow}><strong style={{color: '#6b7280'}}>صلاة الفجر</strong><strong style={{color: '#111827'}}>{prayers.Fajr}</strong></div>
+			  <div style={styles.prayerRow}><strong style={{color: '#6b7280'}}>صلاة الظهر</strong><strong style={{color: '#111827'}}>{prayers.Dhuhr}</strong></div>
+			  <div style={styles.prayerRow}><strong style={{color: '#6b7280'}}>صلاة العصر</strong><strong style={{color: '#111827'}}>{prayers.Asr}</strong></div>
+			  <div style={styles.prayerRow}><strong style={{color: '#6b7280'}}>صلاة المغرب</strong><strong style={{color: '#111827'}}>{prayers.Maghrib}</strong></div>
+			  <div style={{...styles.prayerRow, borderBottom: 'none'}}><strong style={{color: '#6b7280'}}>صلاة العشاء</strong><strong style={{color: '#111827'}}>{prayers.Isha}</strong></div>
+			</div>
 		  ) : (
-			recentNews.map(news => (
-			  <div key={news.id} style={styles.newsItem}>
-				<span style={styles.newsDate}>{news.date || new Date(news.created_at).toLocaleDateString('ar-SA')}</span>
-				<strong style={{ display: 'block', marginBottom: '8px', color: 'var(--text-primary)' }}>{news.type}</strong>
-				<p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{news.text}</p>
-				<small style={{ display: 'block', marginTop: '8px', color: 'var(--forest-green)' }}>المصدر: {news.source}</small>
-			  </div>
-			))
+			<p style={{ color: '#6b7280' }}>جاري المزامنة مع الخادم...</p>
 		  )}
-		</div>
-
-		<div style={styles.card}>
-		  <h3 style={styles.cardTitle}>وصول سريع</h3>
-		  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-			<button style={{ padding: '12px', borderRadius: '8px', border: '1px solid var(--forest-green)', backgroundColor: 'var(--forest-light)', color: 'var(--forest-green)', fontWeight: 700, cursor: 'pointer' }}>تسجيل حضور اليوم</button>
-			<button style={{ padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)', backgroundColor: 'transparent', color: 'var(--text-primary)', fontWeight: 700, cursor: 'pointer' }}>إضافة معاملة مالية</button>
-		  </div>
 		</div>
 	  </div>
 	</div>
