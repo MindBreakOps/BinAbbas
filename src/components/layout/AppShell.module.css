@@ -1,0 +1,78 @@
+.appShell {
+  display: flex;
+  min-height: 100vh;
+  direction: rtl;
+  background-color: var(--bg-app); /* لون الخلفية الرمادي الفاتح جداً */
+}
+
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* الشريط العلوي الجديد */
+.topBar {
+  height: 72px;
+  background-color: var(--bg-card);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--forest-light);
+  color: var(--forest-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.userDetails {
+  display: flex;
+  flex-direction: column;
+}
+
+.userName {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.userRole {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.pageWrapper {
+  padding: 32px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* الصندوق الحاوي للصفحات (صمام الأمان ضد الهاوية) */
+.pageContainer {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: var(--shadow-sm);
+  min-height: calc(100vh - 140px); /* يملأ الشاشة مع ترك مسافات */
+}

@@ -1,0 +1,123 @@
+create table public.attendance (
+  id uuid not null default gen_random_uuid (),
+  key text null,
+  month text null,
+  status text null,
+  created_at timestamp with time zone null default now(),
+  constraint attendance_pkey primary key (id),
+  constraint attendance_key_key unique (key)
+) TABLESPACE pg_default;
+
+create table public.financials (
+  id uuid not null default gen_random_uuid (),
+  category text null,
+  item_desc text null,
+  amount numeric(12, 2) null,
+  type text null,
+  donor_name text null,
+  transaction_date date null default now(),
+  constraint financials_pkey primary key (id)
+) TABLESPACE pg_default;
+
+
+create table public.halaqat (
+  id uuid not null default gen_random_uuid (),
+  halqa text not null,
+  date date null,
+  teacher text null,
+  teacher_id uuid null,
+  student text null,
+  from_verse text null,
+  to_verse text null,
+  surah text null,
+  grade integer null,
+  created_at timestamp with time zone null default now(),
+  constraint halaqat_pkey primary key (id),
+  constraint unique_halaqa_record unique (student, date, halqa),
+  constraint halaqat_teacher_id_fkey foreign KEY (teacher_id) references auth.users (id)
+) TABLESPACE pg_default;
+
+create table public.monthly_exams (
+  id uuid not null default gen_random_uuid (),
+  halqa_name text null,
+  exam_month text null,
+  student_name text null,
+  teacher_id uuid null,
+  s1 integer null,
+  s2 integer null,
+  s3 integer null,
+  s4 integer null,
+  s5 integer null,
+  tajweed integer null,
+  tarteel integer null,
+  solok integer null,
+  mudawama integer null,
+  hifz integer null,
+  total integer null,
+  taqdeer text null,
+  constraint monthly_exams_pkey primary key (id),
+  constraint monthly_exams_teacher_id_fkey foreign KEY (teacher_id) references auth.users (id)
+) TABLESPACE pg_default;
+
+create table public.newspaper (
+  id uuid not null default gen_random_uuid (),
+  type text null,
+  text text null,
+  source text null,
+  date text null,
+  created_at timestamp with time zone null default now(),
+  constraint newspaper_pkey primary key (id)
+) TABLESPACE pg_default;
+
+create table public.profiles (
+  id uuid not null,
+  full_name text not null,
+  email text not null,
+  role_id uuid null,
+  phone text null,
+  avatar_url text null,
+  updated_at timestamp with time zone null default now(),
+  account_status text null default 'pending'::text,
+  sec_q1 text null,
+  sec_a1 text null,
+  sec_q2 text null,
+  sec_a2 text null,
+  sec_q3 text null,
+  sec_a3 text null,
+  constraint profiles_pkey primary key (id),
+  constraint profiles_email_key unique (email),
+  constraint profiles_id_fkey foreign KEY (id) references auth.users (id),
+  constraint profiles_role_id_fkey foreign KEY (role_id) references roles (id)
+) TABLESPACE pg_default;
+
+create table public.roles (
+  id uuid not null default gen_random_uuid (),
+  role_name text not null,
+  created_at timestamp with time zone null default now(),
+  constraint roles_pkey primary key (id),
+  constraint roles_role_name_key unique (role_name)
+) TABLESPACE pg_default;
+
+create table public.teacher_revisions (
+  id uuid not null default extensions.uuid_generate_v4 (),
+  date date null default CURRENT_DATE,
+  reciter_name text not null,
+  listener_name text not null,
+  surah text null,
+  from_verse text null,
+  to_verse text null,
+  grade integer null,
+  constraint teacher_revisions_pkey primary key (id)
+) TABLESPACE pg_default;
+
+create table public.teacher_revisions (
+  id uuid not null default extensions.uuid_generate_v4 (),
+  date date null default CURRENT_DATE,
+  reciter_name text not null,
+  listener_name text not null,
+  surah text null,
+  from_verse text null,
+  to_verse text null,
+  grade integer null,
+  constraint teacher_revisions_pkey primary key (id)
+) TABLESPACE pg_default;

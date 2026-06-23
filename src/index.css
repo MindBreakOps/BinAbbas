@@ -1,0 +1,73 @@
+/* src/index.css */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap');
+
+:root {
+  /* Brand Colors */
+  --forest-green: #114B32;       /* The deep, pro primary color */
+  --forest-light: #E7F0EC;       /* Very soft green for backgrounds/hover states */
+  --forest-dark: #0A2E1F;        /* For dark text accents */
+  
+  /* UI Colors */
+  --bg-app: #F8FAFC;             /* Off-white background for the main screen */
+  --bg-card: #FFFFFF;            /* Pure white for content cards */
+  
+  /* Text */
+  --text-primary: #1E293B;       /* Nearly black for high readability */
+  --text-secondary: #64748B;     /* Gray for subtitles */
+  
+  /* Borders & Shadows */
+  --border-subtle: #E2E8F0;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+body {
+  margin: 0;
+  font-family: 'Cairo', sans-serif;
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+/* Fallback base variables in case the TenantContext hasn't overridden them yet */
+:root {
+  --green: #1e7a50;
+  --green2: #166040;
+  --green3: rgba(30, 122, 80, 0.10);
+  --gold: #9a7230;
+  --gold2: #7a5a20;
+  --gold3: rgba(154, 114, 48, 0.10);
+  --bg: #f0f4f0;
+  --bg2: #e8ede8;
+  --surface: rgba(255, 255, 255, 0.82);
+  --border: rgba(0, 0, 0, 0.07);
+  --border2: rgba(0, 0, 0, 0.12);
+  --text: #111a14;
+  --text2: #3d5244;
+  --text3: #7a9482;
+  --red: #c0392b;
+  --blue: #2563eb;
+}
+
+/* Utility classes to match original design tokens */
+.es {
+  text-align: center;
+  padding: 40px 16px;
+  color: var(--text3);
+}
+
+.es p {
+  font-size: 0.87rem;
+  line-height: 1.9;
+}
+/* مثال لما سنضيفه لاحقاً للوضع الليلي */
+[data-theme='dark'] {
+  --bg-app: #0f172a;        /* خلفية داكنة جداً */
+  --bg-card: #1e293b;       /* لون البطاقات الداكن */
+  --text-primary: #f8fafc;  /* نص أبيض */
+  --text-secondary: #94a3b8;/* نص رمادي فاتح */
+  --border-subtle: #334155; /* حدود داكنة */
+}
