@@ -137,27 +137,31 @@ export default function EsnadLanding() {
 
 		  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px', position: 'relative' }}>
 			
-			<div style={{ backgroundColor: theme.white, border: `1px solid ${theme.gray200}`, padding: '24px', borderRadius: '16px', boxShadow: theme.shadowSm }}>
-			  <div style={{ width: '48px', height: '48px', backgroundColor: theme.gray100, color: theme.gray600, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}><Users size={24} /></div>
-			  <h3 style={{ fontSize: '1.125rem', fontWeight: 'bold', marginBottom: '8px' }}>1. إدارة الطلاب</h3>
+			{/* Card 1 */}
+			<div className="feature-card" style={{ backgroundColor: theme.white, border: `1px solid ${theme.gray200}`, padding: '24px', borderRadius: '16px', boxShadow: theme.shadowSm }}>
+			  <div className="icon-box" style={{ width: '48px', height: '48px', backgroundColor: theme.gray100, color: theme.gray600, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}><Users size={24} /></div>
+			  <h3 className="card-title" style={{ fontSize: '1.125rem', fontWeight: 'bold', marginBottom: '8px' }}>1. إدارة الطلاب</h3>
 			  <p style={{ fontSize: '0.875rem', color: theme.gray500, lineHeight: 1.5 }}>تسجيل الطلاب، إدارة الحضور والانصراف، ومتابعة السجلات الأكاديمية بدقة وسهولة.</p>
 			</div>
 			
-			<div style={{ backgroundColor: theme.white, border: `1px solid ${theme.gray200}`, padding: '24px', borderRadius: '16px', boxShadow: theme.shadowSm }}>
-			  <div style={{ width: '48px', height: '48px', backgroundColor: theme.gray100, color: theme.gray600, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}><GraduationCap size={24} /></div>
-			  <h3 style={{ fontSize: '1.125rem', fontWeight: 'bold', marginBottom: '8px' }}>2. شؤون المعلمين</h3>
+			{/* Card 2 */}
+			<div className="feature-card" style={{ backgroundColor: theme.white, border: `1px solid ${theme.gray200}`, padding: '24px', borderRadius: '16px', boxShadow: theme.shadowSm }}>
+			  <div className="icon-box" style={{ width: '48px', height: '48px', backgroundColor: theme.gray100, color: theme.gray600, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}><GraduationCap size={24} /></div>
+			  <h3 className="card-title" style={{ fontSize: '1.125rem', fontWeight: 'bold', marginBottom: '8px' }}>2. شؤون المعلمين</h3>
 			  <p style={{ fontSize: '0.875rem', color: theme.gray500, lineHeight: 1.5 }}>إسناد الحلقات للمعلمين، تقييم الأداء، ومتابعة الإنجاز اليومي لمقرأة الحفاظ.</p>
 			</div>
 			
-			<div style={{ backgroundColor: theme.white, border: `1px solid ${theme.gray200}`, padding: '24px', borderRadius: '16px', boxShadow: theme.shadowSm }}>
-			  <div style={{ width: '48px', height: '48px', backgroundColor: theme.gray100, color: theme.gray600, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}><Book size={24} /></div>
-			  <h3 style={{ fontSize: '1.125rem', fontWeight: 'bold', marginBottom: '8px' }}>3. التسميع والمقرأة</h3>
+			{/* Card 3 */}
+			<div className="feature-card" style={{ backgroundColor: theme.white, border: `1px solid ${theme.gray200}`, padding: '24px', borderRadius: '16px', boxShadow: theme.shadowSm }}>
+			  <div className="icon-box" style={{ width: '48px', height: '48px', backgroundColor: theme.gray100, color: theme.gray600, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}><Book size={24} /></div>
+			  <h3 className="card-title" style={{ fontSize: '1.125rem', fontWeight: 'bold', marginBottom: '8px' }}>3. التسميع والمقرأة</h3>
 			  <p style={{ fontSize: '0.875rem', color: theme.gray500, lineHeight: 1.5 }}>سجل إلكتروني دقيق لمقدار الحفظ والمراجعة، مع نظام تنبيهات فوري ومباشر لأولياء الأمور.</p>
 			</div>
 			
-			<div style={{ backgroundColor: theme.white, border: `1px solid ${theme.gray200}`, padding: '24px', borderRadius: '16px', boxShadow: theme.shadowSm }}>
-			  <div style={{ width: '48px', height: '48px', backgroundColor: theme.gray100, color: theme.gray600, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}><Wallet size={24} /></div>
-			  <h3 style={{ fontSize: '1.125rem', fontWeight: 'bold', marginBottom: '8px' }}>4. الإدارة المالية</h3>
+			{/* Card 4 */}
+			<div className="feature-card" style={{ backgroundColor: theme.white, border: `1px solid ${theme.gray200}`, padding: '24px', borderRadius: '16px', boxShadow: theme.shadowSm }}>
+			  <div className="icon-box" style={{ width: '48px', height: '48px', backgroundColor: theme.gray100, color: theme.gray600, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}><Wallet size={24} /></div>
+			  <h3 className="card-title" style={{ fontSize: '1.125rem', fontWeight: 'bold', marginBottom: '8px' }}>4. الإدارة المالية</h3>
 			  <p style={{ fontSize: '0.875rem', color: theme.gray500, lineHeight: 1.5 }}>إدارة التبرعات والصدقات، رسوم النقل، مكافآت المعلمين التشجيعية، والمصروفات التشغيلية للمركز.</p>
 			</div>
 
@@ -248,8 +252,39 @@ export default function EsnadLanding() {
 		</div>
 	  )}
 
+	  {/* STYLES FOR ANIMATIONS AND INTERACTIONS */}
 	  <style>{`
 		@keyframes spin { 100% { transform: rotate(360deg); } }
+		
+		/* Interactive Cards CSS */
+		.feature-card {
+		  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		  cursor: pointer;
+		}
+		
+		.feature-card:hover {
+		  transform: translateY(-6px);
+		  border-color: ${theme.emerald} !important;
+		  box-shadow: 0 12px 24px -8px rgba(5, 150, 105, 0.15), 0 4px 12px -4px rgba(5, 150, 105, 0.1) !important;
+		}
+		
+		.icon-box {
+		  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+		
+		.feature-card:hover .icon-box {
+		  background-color: ${theme.emerald} !important;
+		  color: ${theme.white} !important;
+		  transform: scale(1.08);
+		}
+
+		.card-title {
+		  transition: color 0.3s ease;
+		}
+
+		.feature-card:hover .card-title {
+		  color: ${theme.emerald};
+		}
 	  `}</style>
 	</div>
   );
