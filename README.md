@@ -26,16 +26,6 @@ A comprehensive, offline-first, multi-tenant SaaS platform built to digitalize a
 * **Styling:** CSS Modules (No inline-clutter, highly maintainable)
 * **Icons:** Custom SVG Icon System
 
-## 🗄️ Database Schema Overview
-
-The system runs on a robust PostgreSQL schema featuring:
-* `workspaces`: Manages tenant domains, branding, and themes.
-* `profiles`: Extends Supabase Auth with roles, phone numbers, and account statuses.
-* `halaqat`: Core table linking students, teachers, and daily revision records.
-* `financials`: Unified ledger table using `type` and `category` to track all monetary transactions.
-* `attendance`: Key-value based tracking optimized for offline-first conflict resolution.
-* `teacher_revisions`: Specialized tracking for teacher-to-teacher recitation quality.
-* `newspaper`: Internal bulletin board for announcements.
 
 ## 🚀 Getting Started
 
@@ -46,7 +36,3 @@ The system runs on a robust PostgreSQL schema featuring:
 
 ### Installation
 
-1. Clone the repository:
-   ```bash
-   git clone [https://github.com/YOUR_USERNAME/BinAbbas.git](https://github.com/YOUR_USERNAME/BinAbbas.git)
-   cd BinAbbas
