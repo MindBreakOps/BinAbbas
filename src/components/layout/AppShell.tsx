@@ -1,24 +1,29 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../lib/supabase';
 import styles from './AppShell.module.css';
 
 export default function AppShell() {
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+	const { error } = await supabase.auth.signOut();
+	if (!error) {
+	  navigate('/login'); // توجيه المستخدم لصفحة الدخول بعد الخروج
+	} else {
+	  alert('حدث خطأ أثناء تسجيل الخروج');
+	}
+  };
 
   return (
 	<div className={styles.appShell}>
-	  {/* الشريط الجانبي */}
 	  <Sidebar />
-	  
-	  {/* القسم الأيسر الذي يحتوي على الشريط العلوي والمحتوى */}
 	  <main className={styles.mainContent}>
-		
-		{/* الشريط العلوي */}
 		<header className={styles.topBar}>
 		  <div>
-			{/* يمكن إضافة مسار التنقل (Breadcrumbs) هنا مستقبلاً */}
 			<h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '1.1rem' }}>لوحة التحكم</h3>
 		  </div>
 		  
@@ -30,16 +35,31 @@ export default function AppShell() {
 			<div className={styles.avatar}>
 			  {user?.email?.charAt(0).toUpperCase() || 'م'}
 			</div>
+			{/* زر تسجيل الخروج الجديد */}
+			<button 
+			  onClick={handleLogout}
+			  style={{
+				marginLeft: '16px',
+				padding: '8px 12px',
+				backgroundColor: '#fef2f2',
+				color: '#b91c1c',
+				border: '1px solid #fecaca',
+				borderRadius: '8px',
+				cursor: 'pointer',
+				fontWeight: 700,
+				fontFamily: 'inherit'
+			  }}
+			>
+			  تسجيل الخروج
+			</button>
 		  </div>
 		</header>
 
-		{/* مساحة عرض الصفحات مع الإطار المحدِد */}
 		<div className={styles.pageWrapper}>
 		  <div className={styles.pageContainer}>
 			<Outlet />
 		  </div>
 		</div>
-		
 	  </main>
 	</div>
   );

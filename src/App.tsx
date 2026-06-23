@@ -32,20 +32,23 @@ import SettingsPreferences from './pages/SettingsPreferences';
 export default function App() {
   return (
 	<BrowserRouter>
-	  {/* مزودات السياق (Context Providers) يجب أن تغلف التطبيق بأكمله */}
 	  <AuthProvider>
 		<TenantProvider>
-		  
 		  <Routes>
-			{/* 
-			  هذا هو الـ Layout Route
-			  أي صفحة توضع داخل هذا الـ Route سيتم تغليفها بـ AppShell 
-			  (الشريط الجانبي والشريط العلوي)
-			*/}
+			
+			{/* ==========================================
+				1. المسارات العامة (بدون شريط جانبي)
+				========================================== */}
+			<Route path="/" element={<Landing />} />
+			<Route path="/login" element={<Login />} />
+
+			{/* ==========================================
+				2. مسارات لوحة التحكم (مع الشريط الجانبي)
+				========================================== */}
 			<Route element={<AppShell />}>
+			  {/* لاحظ أن لوحة القيادة أصبح مسارها /dashboard بدلاً من / */}
+			  <Route path="/dashboard" element={<Dashboard />} />
 			  
-			  {/* الصفحات الأساسية */}
-			  <Route path="/" element={<Dashboard />} />
 			  <Route path="/students" element={<Students />} />
 			  <Route path="/teachers" element={<Teachers />} />
 			  <Route path="/teacher-rev" element={<TeacherRev />} />
@@ -54,28 +57,17 @@ export default function App() {
 			  <Route path="/exams" element={<Exams />} />
 			  <Route path="/news" element={<News />} />
 
-			  {/* صفحات قسم المالية */}
 			  <Route path="/financials/overview" element={<FinancialOverview />} />
 			  <Route path="/financials/budget" element={<FinancialBudget />} />
 			  <Route path="/financials/donations" element={<FinancialDonations />} />
 			  <Route path="/financials/expenses" element={<FinancialExpenses />} />
 
-			  {/* صفحات الإعدادات */}
 			  <Route path="/settings/workspace" element={<SettingsWorkspace />} />
 			  <Route path="/settings/accounts" element={<SettingsAccounts />} />
 			  <Route path="/settings/preferences" element={<SettingsPreferences />} />
-
 			</Route>
 
-			{/* 
-			  ملاحظة: إذا كان لديك صفحة تسجيل دخول (Login) 
-			  يجب أن تكون خارج الـ AppShell حتى لا يظهر فيها الشريط الجانبي.
-			  مثال:
-			  <Route path="/login" element={<Login />} />
-			*/}
-			
 		  </Routes>
-		  
 		</TenantProvider>
 	  </AuthProvider>
 	</BrowserRouter>
