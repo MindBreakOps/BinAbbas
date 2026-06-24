@@ -8,12 +8,12 @@ import {
 const OPS_API = 'https://script.google.com/macros/s/AKfycby7xDEoYBzGM7sAAAkX0LDTKNHo63LjbgmaC-0VLXESPFj7BSl10GE-sIqM-Ss3wE8/exec';
 const TARGET_EMAIL = 'support@operix-solutions.com';
 
+// تم تحديث الألوان لتتطابق مع تصميم Operix FMIS في النظام
 const theme = {
-  emerald: '#059669',
-  emeraldHover: '#047857',
-  emeraldLight: '#ecfdf5',
-  emeraldBorder: '#a7f3d0',
-  gray900: '#111827',
+  primary: '#10b981', // Emerald الخاص بالنظام
+  primaryHover: '#059669',
+  primaryLight: 'rgba(16, 185, 129, 0.1)',
+  darkNavy: '#111827', // لون الشريط الجانبي في النظام
   gray600: '#4b5563',
   gray500: '#6b7280',
   gray200: '#e5e7eb',
@@ -61,16 +61,16 @@ export default function EsnadLanding() {
   };
 
   return (
-	<div dir="rtl" style={{ minHeight: '100vh', backgroundColor: theme.gray50, fontFamily: theme.fontFamily, color: theme.gray900 }}>
+	<div dir="rtl" style={{ minHeight: '100vh', backgroundColor: theme.gray50, fontFamily: theme.fontFamily, color: theme.darkNavy }}>
 	  
 	  {/* NAVIGATION */}
-	  <nav style={{ position: 'fixed', top: 0, width: '100%', backgroundColor: 'rgba(255, 255, 255, 0.8)', backdropFilter: 'blur(12px)', borderBottom: `1px solid ${theme.gray200}`, zIndex: 50 }}>
+	  <nav style={{ position: 'fixed', top: 0, width: '100%', backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(12px)', borderBottom: `1px solid ${theme.gray200}`, zIndex: 50 }}>
 		<div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 24px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 		  
 		  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-			<img src="/logo.png" alt="شعار بن عباس" style={{ height: '40px', width: '40px', objectFit: 'contain' }} onError={(e) => { e.currentTarget.style.display = 'none'; }} />
-			<span style={{ fontWeight: 'bold', fontSize: '20px', letterSpacing: '-0.025em' }}>
-			  إسناد <span style={{ color: theme.emerald, fontSize: '14px' }}>مبادرة أوبيركس</span>
+			<div style={{ width: '32px', height: '32px', backgroundColor: theme.darkNavy, borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: theme.white, fontWeight: 900 }}>O</div>
+			<span style={{ fontWeight: '900', fontSize: '20px', letterSpacing: '-0.025em', color: theme.darkNavy }}>
+			  نظام إسناد <span style={{ color: theme.primary, fontSize: '14px' }}>مبادرة أوبيركس</span>
 			</span>
 		  </div>
 
@@ -81,12 +81,14 @@ export default function EsnadLanding() {
 			<Link to="/subscription" style={{ fontSize: '14px', fontWeight: 'bold', color: theme.gray600, textDecoration: 'none', transition: 'color 0.2s' }}>
 			  الباقات والاشتراكات
 			</Link>
-			<Link to="/login" style={{ fontSize: '14px', fontWeight: 'bold', color: theme.gray900, textDecoration: 'none', cursor: 'pointer' }}>
+			<Link to="/login" style={{ fontSize: '14px', fontWeight: 'bold', color: theme.darkNavy, textDecoration: 'none', cursor: 'pointer' }}>
 			  تسجيل الدخول
 			</Link>
 			<button 
 			  onClick={() => setIsDemoModalOpen(true)} 
-			  style={{ padding: '8px 20px', backgroundColor: theme.emerald, color: theme.white, fontSize: '14px', fontWeight: 'bold', borderRadius: '8px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: theme.shadowSm }}
+			  style={{ padding: '8px 20px', backgroundColor: theme.primary, color: theme.white, fontSize: '14px', fontWeight: 'bold', borderRadius: '8px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: theme.shadowSm, transition: 'background-color 0.2s' }}
+			  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.primaryHover}
+			  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.primary}
 			>
 			  <PlayCircle size={16} /> طلب النظام
 			</button>
@@ -98,13 +100,13 @@ export default function EsnadLanding() {
 	  {/* HERO SECTION */}
 	  <section style={{ paddingTop: '140px', paddingBottom: '80px', paddingLeft: '24px', paddingRight: '24px', maxWidth: '1280px', margin: '0 auto', textAlign: 'center' }}>
 		
-		<div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 12px', borderRadius: '9999px', backgroundColor: theme.emeraldLight, border: `1px solid ${theme.emeraldBorder}`, color: theme.emeraldHover, fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '24px' }}>
-		  <Heart size={14} fill={theme.emeraldHover} /> وقف تقني ولوجه الله تعالى
+		<div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 12px', borderRadius: '9999px', backgroundColor: theme.primaryLight, color: theme.primaryHover, fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '24px' }}>
+		  <Heart size={14} fill={theme.primaryHover} /> وقف تقني ولوجه الله تعالى
 		</div>
 		
-		<h1 style={{ fontSize: '3rem', fontWeight: 800, letterSpacing: '-0.025em', color: theme.gray900, marginBottom: '24px', lineHeight: 1.2 }}>
+		<h1 style={{ fontSize: '3.5rem', fontWeight: 900, letterSpacing: '-0.025em', color: theme.darkNavy, marginBottom: '24px', lineHeight: 1.2 }}>
 		  نظام إسناد . <br />
-		  <span style={{ background: `linear-gradient(to left, ${theme.emerald}, #15803d)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>لإدارة الحلقات والمراكز القرآنية.</span>
+		  <span style={{ color: theme.primary }}>لإدارة الحلقات والمراكز القرآنية.</span>
 		</h1>
 		
 		<p style={{ fontSize: '1.125rem', color: theme.gray600, maxWidth: '800px', margin: '0 auto 40px auto', lineHeight: 1.8, textAlign: 'justify', textJustify: 'inter-word' }}>
@@ -114,13 +116,17 @@ export default function EsnadLanding() {
 		<div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '16px' }}>
 		  <button 
 			onClick={() => setIsDemoModalOpen(true)} 
-			style={{ padding: '16px 32px', backgroundColor: theme.emerald, color: theme.white, fontSize: '16px', fontWeight: 'bold', borderRadius: '12px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: theme.shadowLg }}
+			style={{ padding: '16px 32px', backgroundColor: theme.primary, color: theme.white, fontSize: '16px', fontWeight: 'bold', borderRadius: '12px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: theme.shadowLg, transition: 'background-color 0.2s' }}
+			onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.primaryHover}
+			onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.primary}
 		  >
 			<Book size={18} /> طلب الحصول على النظام ومساحتكم الخاصة
 		  </button>
 		  <Link 
 			to="/login" 
-			style={{ padding: '16px 32px', backgroundColor: theme.white, color: theme.gray900, border: `1px solid ${theme.gray200}`, fontSize: '16px', fontWeight: 'bold', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', boxShadow: theme.shadowSm }}
+			style={{ padding: '16px 32px', backgroundColor: theme.white, color: theme.darkNavy, border: `1px solid ${theme.gray200}`, fontSize: '16px', fontWeight: 'bold', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', boxShadow: theme.shadowSm, transition: 'background-color 0.2s' }}
+			onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.gray50}
+			onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.white}
 		  >
 			الدخول للنظام <ArrowLeft size={18} />
 		  </Link>
@@ -131,37 +137,33 @@ export default function EsnadLanding() {
 	  <section style={{ padding: '96px 0', backgroundColor: theme.white, borderTop: `1px solid ${theme.gray200}`, borderBottom: `1px solid ${theme.gray200}` }}>
 		<div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 24px' }}>
 		  <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-			<h2 style={{ fontSize: '1.875rem', fontWeight: 800, marginBottom: '16px' }}>كيف يعمل نظام إسناد وتدبير الحلقات</h2>
+			<h2 style={{ fontSize: '1.875rem', fontWeight: 800, marginBottom: '16px', color: theme.darkNavy }}>كيف يعمل نظام إسناد وتدبير الحلقات</h2>
 			<p style={{ color: theme.gray500, maxWidth: '672px', margin: '0 auto' }}>تغطية شاملة لكافة احتياجات المركز القرآني في منصة واحدة متكاملة ومنظمة تكنولوجياً.</p>
 		  </div>
 
 		  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px', position: 'relative' }}>
 			
-			{/* Card 1 */}
 			<div className="feature-card" style={{ backgroundColor: theme.white, border: `1px solid ${theme.gray200}`, padding: '24px', borderRadius: '16px', boxShadow: theme.shadowSm }}>
 			  <div className="icon-box" style={{ width: '48px', height: '48px', backgroundColor: theme.gray100, color: theme.gray600, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}><Users size={24} /></div>
-			  <h3 className="card-title" style={{ fontSize: '1.125rem', fontWeight: 'bold', marginBottom: '8px' }}>1. إدارة الطلاب</h3>
+			  <h3 className="card-title" style={{ fontSize: '1.125rem', fontWeight: 'bold', marginBottom: '8px', color: theme.darkNavy }}>1. إدارة الطلاب</h3>
 			  <p style={{ fontSize: '0.875rem', color: theme.gray500, lineHeight: 1.5 }}>تسجيل الطلاب، إدارة الحضور والانصراف، ومتابعة السجلات الأكاديمية بدقة وسهولة.</p>
 			</div>
 			
-			{/* Card 2 */}
 			<div className="feature-card" style={{ backgroundColor: theme.white, border: `1px solid ${theme.gray200}`, padding: '24px', borderRadius: '16px', boxShadow: theme.shadowSm }}>
 			  <div className="icon-box" style={{ width: '48px', height: '48px', backgroundColor: theme.gray100, color: theme.gray600, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}><GraduationCap size={24} /></div>
-			  <h3 className="card-title" style={{ fontSize: '1.125rem', fontWeight: 'bold', marginBottom: '8px' }}>2. شؤون المعلمين</h3>
+			  <h3 className="card-title" style={{ fontSize: '1.125rem', fontWeight: 'bold', marginBottom: '8px', color: theme.darkNavy }}>2. شؤون المعلمين</h3>
 			  <p style={{ fontSize: '0.875rem', color: theme.gray500, lineHeight: 1.5 }}>إسناد الحلقات للمعلمين، تقييم الأداء، ومتابعة الإنجاز اليومي لمقرأة الحفاظ.</p>
 			</div>
 			
-			{/* Card 3 */}
 			<div className="feature-card" style={{ backgroundColor: theme.white, border: `1px solid ${theme.gray200}`, padding: '24px', borderRadius: '16px', boxShadow: theme.shadowSm }}>
 			  <div className="icon-box" style={{ width: '48px', height: '48px', backgroundColor: theme.gray100, color: theme.gray600, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}><Book size={24} /></div>
-			  <h3 className="card-title" style={{ fontSize: '1.125rem', fontWeight: 'bold', marginBottom: '8px' }}>3. التسميع والمقرأة</h3>
+			  <h3 className="card-title" style={{ fontSize: '1.125rem', fontWeight: 'bold', marginBottom: '8px', color: theme.darkNavy }}>3. التسميع والمقرأة</h3>
 			  <p style={{ fontSize: '0.875rem', color: theme.gray500, lineHeight: 1.5 }}>سجل إلكتروني دقيق لمقدار الحفظ والمراجعة، مع نظام تنبيهات فوري ومباشر لأولياء الأمور.</p>
 			</div>
 			
-			{/* Card 4 */}
 			<div className="feature-card" style={{ backgroundColor: theme.white, border: `1px solid ${theme.gray200}`, padding: '24px', borderRadius: '16px', boxShadow: theme.shadowSm }}>
 			  <div className="icon-box" style={{ width: '48px', height: '48px', backgroundColor: theme.gray100, color: theme.gray600, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}><Wallet size={24} /></div>
-			  <h3 className="card-title" style={{ fontSize: '1.125rem', fontWeight: 'bold', marginBottom: '8px' }}>4. الإدارة المالية</h3>
+			  <h3 className="card-title" style={{ fontSize: '1.125rem', fontWeight: 'bold', marginBottom: '8px', color: theme.darkNavy }}>4. الإدارة المالية</h3>
 			  <p style={{ fontSize: '0.875rem', color: theme.gray500, lineHeight: 1.5 }}>إدارة التبرعات والصدقات، رسوم النقل، مكافآت المعلمين التشجيعية، والمصروفات التشغيلية للمركز.</p>
 			</div>
 
@@ -170,11 +172,11 @@ export default function EsnadLanding() {
 	  </section>
 
 	  {/* FOOTER */}
-	  <footer style={{ backgroundColor: theme.gray900, padding: '48px 0', textAlign: 'center' }}>
+	  <footer style={{ backgroundColor: theme.darkNavy, padding: '48px 0', textAlign: 'center' }}>
 		<div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 24px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 		  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', opacity: 0.5 }}>
 			<div style={{ width: '24px', height: '24px', backgroundColor: theme.white, borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-			  <span style={{ color: theme.gray900, fontWeight: 'bold', fontSize: '12px' }}>O</span>
+			  <span style={{ color: theme.darkNavy, fontWeight: 'bold', fontSize: '12px' }}>O</span>
 			</div>
 			<span style={{ fontWeight: 'bold', color: theme.white, letterSpacing: '-0.025em' }}>OPERIX Solutions</span>
 		  </div>
@@ -188,36 +190,36 @@ export default function EsnadLanding() {
 
 	  {/* DEMO MODAL */}
 	  {isDemoModalOpen && (
-		<div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+		<div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(17, 24, 39, 0.7)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
 		  <div style={{ backgroundColor: theme.white, borderRadius: '16px', maxWidth: '440px', width: '100%', boxShadow: theme.shadowLg, overflow: 'hidden' }}>
 			
 			<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '24px', borderBottom: `1px solid ${theme.gray100}` }}>
-			  <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', margin: 0 }}>طلب نسخة من النظام</h3>
+			  <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', margin: 0, color: theme.darkNavy }}>طلب نسخة من النظام</h3>
 			  <button onClick={() => setIsDemoModalOpen(false)} style={{ background: 'none', border: 'none', color: theme.gray500, cursor: 'pointer' }}><X size={20} /></button>
 			</div>
 			
 			<form onSubmit={handleDemoRequest} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
 			  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
 				<label style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: theme.gray500 }}>الاسم الكريم</label>
-				<input type="text" required value={demoForm.name} onChange={e => setDemoForm({ ...demoForm, name: e.target.value })} style={{ width: '100%', height: '44px', backgroundColor: theme.gray50, border: `1px solid ${theme.gray200}`, borderRadius: '8px', padding: '0 12px', fontSize: '14px', boxSizing: 'border-box' }} />
+				<input type="text" required value={demoForm.name} onChange={e => setDemoForm({ ...demoForm, name: e.target.value })} style={{ width: '100%', height: '44px', backgroundColor: theme.white, border: `1px solid ${theme.gray200}`, borderRadius: '8px', padding: '0 12px', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }} />
 			  </div>
 			  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
 				<label style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: theme.gray500 }}>البريد الإلكتروني</label>
-				<input type="email" required value={demoForm.email} onChange={e => setDemoForm({ ...demoForm, email: e.target.value })} dir="ltr" style={{ width: '100%', height: '44px', backgroundColor: theme.gray50, border: `1px solid ${theme.gray200}`, borderRadius: '8px', padding: '0 12px', fontSize: '14px', boxSizing: 'border-box', textAlign: 'right' }} />
+				<input type="email" required value={demoForm.email} onChange={e => setDemoForm({ ...demoForm, email: e.target.value })} dir="ltr" style={{ width: '100%', height: '44px', backgroundColor: theme.white, border: `1px solid ${theme.gray200}`, borderRadius: '8px', padding: '0 12px', fontSize: '14px', boxSizing: 'border-box', textAlign: 'right', outline: 'none' }} />
 			  </div>
 			  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
 				<label style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: theme.gray500 }}>اسم المركز أو الحلقة</label>
-				<input type="text" required value={demoForm.center} onChange={e => setDemoForm({ ...demoForm, center: e.target.value })} style={{ width: '100%', height: '44px', backgroundColor: theme.gray50, border: `1px solid ${theme.gray200}`, borderRadius: '8px', padding: '0 12px', fontSize: '14px', boxSizing: 'border-box' }} />
+				<input type="text" required value={demoForm.center} onChange={e => setDemoForm({ ...demoForm, center: e.target.value })} style={{ width: '100%', height: '44px', backgroundColor: theme.white, border: `1px solid ${theme.gray200}`, borderRadius: '8px', padding: '0 12px', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }} />
 			  </div>
 			  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
 				<label style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: theme.gray500 }}>القدرة الاستيعابية للطلاب</label>
-				<select value={demoForm.size} onChange={e => setDemoForm({ ...demoForm, size: e.target.value })} style={{ width: '100%', height: '44px', backgroundColor: theme.white, border: `1px solid ${theme.gray200}`, borderRadius: '8px', padding: '0 12px', fontSize: '14px', boxSizing: 'border-box' }}>
+				<select value={demoForm.size} onChange={e => setDemoForm({ ...demoForm, size: e.target.value })} style={{ width: '100%', height: '44px', backgroundColor: theme.white, border: `1px solid ${theme.gray200}`, borderRadius: '8px', padding: '0 12px', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}>
 				  <option>1 - 50 طالب</option>
 				  <option>51 - 200 طالب</option>
 				  <option>أكثر من 200 طالب</option>
 				</select>
 			  </div>
-			  <button type="submit" disabled={isSubmitting} style={{ width: '100%', height: '48px', marginTop: '16px', backgroundColor: theme.emerald, color: theme.white, fontWeight: 'bold', borderRadius: '12px', border: 'none', cursor: isSubmitting ? 'not-allowed' : 'pointer', opacity: isSubmitting ? 0.7 : 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
+			  <button type="submit" disabled={isSubmitting} style={{ width: '100%', height: '48px', marginTop: '16px', backgroundColor: theme.primary, color: theme.white, fontWeight: 'bold', borderRadius: '12px', border: 'none', cursor: isSubmitting ? 'not-allowed' : 'pointer', opacity: isSubmitting ? 0.7 : 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
 				{isSubmitting ? <><Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> جاري الإرسال...</> : 'إرسال الطلب لإدارة المبادرة'}
 			  </button>
 			</form>
@@ -227,12 +229,12 @@ export default function EsnadLanding() {
 
 	  {/* INTERACTIVE POP-UP SUPPORT MODAL */}
 	  {isSupportModalOpen && (
-		<div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+		<div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(17, 24, 39, 0.7)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
 		  <div style={{ backgroundColor: theme.white, borderRadius: '16px', maxWidth: '460px', width: '100%', boxShadow: theme.shadowLg, overflow: 'hidden' }}>
 			<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '24px', borderBottom: `1px solid ${theme.gray100}`, backgroundColor: theme.gray50 }}>
 			  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-				<HelpCircle size={20} style={{ color: theme.emerald }} />
-				<h3 style={{ fontSize: '1.15rem', fontWeight: 'bold', margin: 0 }}>مركز المساعدة والدعم الفني المباشر</h3>
+				<HelpCircle size={20} style={{ color: theme.primary }} />
+				<h3 style={{ fontSize: '1.15rem', fontWeight: 'bold', margin: 0, color: theme.darkNavy }}>مركز المساعدة والدعم الفني المباشر</h3>
 			  </div>
 			  <button onClick={() => setIsSupportModalOpen(false)} style={{ background: 'none', border: 'none', color: theme.gray500, cursor: 'pointer' }}><X size={20} /></button>
 			</div>
@@ -240,9 +242,9 @@ export default function EsnadLanding() {
 			  <p style={{ margin: 0, fontSize: '14px', color: theme.gray600 }}>
 				إذا كنت تواجه أي صعوبة تقنية في استخدام مساحتك البرمجية أو ترغب في الاستفسار عن تفعيل الخصائص المالية المتقدمة، يمكنك التواصل مباشرة مع مهندسي النظام لدينا.
 			  </p>
-			  <div style={{ padding: '14px', backgroundColor: theme.gray50, borderRadius: '12px', border: `1px solid ${theme.gray200}`, direction: 'ltr', textAlign: 'left' }}>
+			  <div style={{ padding: '14px', backgroundColor: theme.white, borderRadius: '12px', border: `1px solid ${theme.gray200}`, direction: 'ltr', textAlign: 'left' }}>
 				<span style={{ fontSize: '11px', textTransform: 'uppercase', fontWeight: 'bold', color: theme.gray500, display: 'block', marginBottom: '2px' }}>Official Support Email</span>
-				<a href="mailto:support@operix-solutions.com" style={{ color: theme.emerald, fontWeight: 'bold', textDecoration: 'none', fontSize: '15px' }}>support@operix-solutions.com</a>
+				<a href="mailto:support@operix-solutions.com" style={{ color: theme.primary, fontWeight: 'bold', textDecoration: 'none', fontSize: '15px' }}>support@operix-solutions.com</a>
 			  </div>
 			  <p style={{ margin: 0, fontSize: '12px', color: theme.gray400, textAlign: 'center' }}>
 				نعمل على مدار الساعة لخدمتكم وضمان استقرار عملياتكم التعليمية والقرآنية.
@@ -264,8 +266,8 @@ export default function EsnadLanding() {
 		
 		.feature-card:hover {
 		  transform: translateY(-6px);
-		  border-color: ${theme.emerald} !important;
-		  box-shadow: 0 12px 24px -8px rgba(5, 150, 105, 0.15), 0 4px 12px -4px rgba(5, 150, 105, 0.1) !important;
+		  border-color: ${theme.primary} !important;
+		  box-shadow: 0 12px 24px -8px rgba(16, 185, 129, 0.15), 0 4px 12px -4px rgba(16, 185, 129, 0.1) !important;
 		}
 		
 		.icon-box {
@@ -273,7 +275,7 @@ export default function EsnadLanding() {
 		}
 		
 		.feature-card:hover .icon-box {
-		  background-color: ${theme.emerald} !important;
+		  background-color: ${theme.primary} !important;
 		  color: ${theme.white} !important;
 		  transform: scale(1.08);
 		}
@@ -283,7 +285,7 @@ export default function EsnadLanding() {
 		}
 
 		.feature-card:hover .card-title {
-		  color: ${theme.emerald};
+		  color: ${theme.primary};
 		}
 	  `}</style>
 	</div>

@@ -2,19 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Icon } from '../components/ui/Icons';
 
+// أيقونة بحث SVG
+const SearchIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+	<circle cx="11" cy="11" r="8" />
+	<line x1="21" y1="21" x2="16.65" y2="16.65" />
+  </svg>
+);
+
 export default function Students() {
   const [students, setStudents] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   
-  // States for Create & Edit
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({ name: '', phone: '', age: '', level: 'تأسيس' });
 
   const fetchStudents = async () => {
 	setIsLoading(true);
-	
-	// جلب البيانات بناءً على الأعمدة الحقيقية فقط
 	const { data, error } = await supabase
 	  .from('students')
 	  .select('*')
@@ -27,6 +33,10 @@ export default function Students() {
   useEffect(() => {
 	fetchStudents();
   }, []);
+
+  const filteredStudents = students.filter(s => 
+	s.name.includes(searchTerm) || (s.phone && s.phone.includes(searchTerm))
+  );
 
   const openEditModal = (student: any) => {
 	setEditingId(student.id);
@@ -47,8 +57,6 @@ export default function Students() {
 
   const handleSave = async (e: React.FormEvent) => {
 	e.preventDefault();
-
-	// تجهيز البيانات لتتطابق مع الـ Schema تماماً
 	const payload = {
 	  name: formData.name,
 	  phone: formData.phone || null,
@@ -57,10 +65,8 @@ export default function Students() {
 	};
 
 	if (editingId) {
-	  // تعديل
 	  await supabase.from('students').update(payload).eq('id', editingId);
 	} else {
-	  // إضافة
 	  await supabase.from('students').insert([payload]);
 	}
 
@@ -73,20 +79,34 @@ export default function Students() {
   };
 
   const styles: { [key: string]: React.CSSProperties } = {
-	header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid var(--border-subtle)' },
-	title: { fontSize: '1.5rem', fontWeight: 800, margin: '0 0 8px 0', color: 'var(--text-primary)' },
-	subtitle: { fontSize: '0.95rem', color: 'var(--text-secondary)', margin: 0 },
-	actions: { display: 'flex', gap: '12px' },
-	btnPrimary: { backgroundColor: 'var(--forest-green)', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center' },
-	btnExport: { backgroundColor: '#fff', color: '#b91c1c', border: '1px solid #fca5a5', padding: '10px 20px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center' },
-	card: { backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: '12px', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' },
+	header: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' },
+	titleGroup: { display: 'flex', flexDirection: 'column', gap: '4px' },
+	title: { fontSize: '1.5rem', fontWeight: 800, color: '#111827', margin: 0 },
+	subtitle: { fontSize: '0.85rem', color: '#6b7280', margin: 0 },
+	
+	// شريط التحكم (Search & Actions)
+	controlBar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', gap: '16px', flexWrap: 'wrap' },
+	searchBox: { display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#ffffff', border: '1px solid #d1d5db', borderRadius: '6px', padding: '8px 16px', width: '300px' },
+	searchInput: { border: 'none', outline: 'none', backgroundColor: 'transparent', width: '100%', fontSize: '0.9rem', fontFamily: 'inherit' },
+	actionsGroup: { display: 'flex', gap: '12px' },
+	
+	// الأزرار الاحترافية
+	btnPrimary: { backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '10px 20px', borderRadius: '6px', fontWeight: 700, cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' },
+	btnExport: { backgroundColor: '#ffffff', color: '#374151', border: '1px solid #d1d5db', padding: '10px 20px', borderRadius: '6px', fontWeight: 700, cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' },
+	btnEdit: { backgroundColor: 'transparent', color: '#059669', border: '1px solid #a7f3d0', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem' },
+	
+	// الجدول
+	card: { backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
 	table: { width: '100%', borderCollapse: 'collapse', textAlign: 'right' },
-	th: { backgroundColor: 'var(--forest-light)', padding: '16px', borderBottom: '1px solid var(--border-subtle)', color: 'var(--forest-dark)' },
-	td: { padding: '16px', borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-primary)' },
-	modalOverlay: { position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
-	modalContent: { backgroundColor: '#fff', padding: '24px', borderRadius: '16px', width: '100%', maxWidth: '500px' },
+	th: { padding: '14px 16px', borderBottom: '1px solid #e5e7eb', backgroundColor: '#f9fafb', color: '#4b5563', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' },
+	td: { padding: '14px 16px', borderBottom: '1px solid #e5e7eb', color: '#111827', fontSize: '0.9rem', fontWeight: 600 },
+	
+	// النوافذ المنبثقة
+	modalOverlay: { position: 'fixed', inset: 0, backgroundColor: 'rgba(17, 24, 39, 0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
+	modalContent: { backgroundColor: '#ffffff', padding: '32px', borderRadius: '8px', width: '100%', maxWidth: '500px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' },
 	inputGroup: { display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' },
-	input: { padding: '10px', borderRadius: '8px', border: '1px solid var(--border-subtle)', fontFamily: 'inherit' }
+	label: { fontSize: '0.8rem', fontWeight: 800, color: '#374151' },
+	input: { padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontFamily: 'inherit', outline: 'none' }
   };
 
   return (
@@ -101,49 +121,66 @@ export default function Students() {
 	  `}</style>
 
 	  <div className="no-print" style={styles.header}>
-		<div>
-		  <h2 style={styles.title}>سجل الطلاب الشامل</h2>
-		  <p style={styles.subtitle}>إدارة البيانات الشخصية للطلاب (الإضافة، التعديل، والتصدير)</p>
+		<div style={styles.titleGroup}>
+		  <h2 style={styles.title}>إدارة الطلاب</h2>
+		  <p style={styles.subtitle}>سجل بيانات الطلاب، التعديل، واستخراج التقارير</p>
 		</div>
-		<div style={styles.actions}>
+	  </div>
+
+	  <div className="no-print" style={styles.controlBar}>
+		<div style={styles.searchBox}>
+		  <SearchIcon />
+		  <input 
+			type="text" 
+			placeholder="بحث بالاسم أو رقم الجوال..." 
+			style={styles.searchInput}
+			value={searchTerm}
+			onChange={(e) => setSearchTerm(e.target.value)}
+		  />
+		</div>
+		<div style={styles.actionsGroup}>
 		  <button style={styles.btnExport} onClick={handleExportPDF}>
 			<Icon name="file" size={16} /> تصدير PDF
 		  </button>
 		  <button style={styles.btnPrimary} onClick={openCreateModal}>
-			<Icon name="plus" size={16} /> طالب جديد
+			<Icon name="plus" size={16} /> إضافة طالب
 		  </button>
 		</div>
 	  </div>
 
 	  <div id="printable-table" style={styles.card}>
-		{isLoading ? <p style={{ padding: '20px', textAlign: 'center' }}>جاري التحميل...</p> : (
+		{isLoading ? <p style={{ padding: '32px', textAlign: 'center', color: '#6b7280' }}>جاري تحميل البيانات...</p> : (
 		  <table style={styles.table}>
 			<thead>
 			  <tr>
-				<th style={styles.th}>الاسم</th>
+				<th style={styles.th}>الاسم الكامل</th>
 				<th style={styles.th}>الجوال</th>
 				<th style={styles.th}>العمر</th>
 				<th style={styles.th}>المستوى</th>
 				<th style={styles.th}>تاريخ التسجيل</th>
-				<th className="no-print" style={styles.th}>إجراء</th>
+				<th className="no-print" style={styles.th}>إجراءات</th>
 			  </tr>
 			</thead>
 			<tbody>
-			  {students.map(s => (
+			  {filteredStudents.map(s => (
 				<tr key={s.id}>
-				  <td style={{ ...styles.td, fontWeight: 700 }}>{s.name}</td>
+				  <td style={{ ...styles.td, fontWeight: 800 }}>{s.name}</td>
 				  <td style={styles.td} dir="ltr">{s.phone || '—'}</td>
 				  <td style={styles.td}>{s.age ? `${s.age} سنة` : '—'}</td>
-				  <td style={styles.td}>{s.level || '—'}</td>
-				  <td style={styles.td}>{new Date(s.registration_date || s.created_at).toLocaleDateString('ar-SA')}</td>
+				  <td style={styles.td}>
+					<span style={{ backgroundColor: '#f3f4f6', padding: '4px 10px', borderRadius: '4px', fontSize: '0.8rem', color: '#374151' }}>
+					  {s.level || '—'}
+					</span>
+				  </td>
+				  <td style={{ ...styles.td, color: '#6b7280', fontSize: '0.85rem' }}>
+					{new Date(s.registration_date || s.created_at).toLocaleDateString('ar-SA')}
+				  </td>
 				  <td className="no-print" style={styles.td}>
-					<button style={{ background: 'none', border: 'none', color: 'var(--forest-green)', fontWeight: 700, cursor: 'pointer' }} onClick={() => openEditModal(s)}>
-					  تعديل
-					</button>
+					<button style={styles.btnEdit} onClick={() => openEditModal(s)}>تعديل السجل</button>
 				  </td>
 				</tr>
 			  ))}
-			  {students.length === 0 && <tr><td colSpan={6} style={{...styles.td, textAlign: 'center'}}>لا يوجد طلاب مسجلين.</td></tr>}
+			  {filteredStudents.length === 0 && <tr><td colSpan={6} style={{textAlign: 'center', padding: '32px', color: '#6b7280'}}>لا توجد نتائج مطابقة.</td></tr>}
 			</tbody>
 		  </table>
 		)}
@@ -152,32 +189,34 @@ export default function Students() {
 	  {isModalOpen && (
 		<div className="no-print" style={styles.modalOverlay}>
 		  <div style={styles.modalContent}>
-			<h3 style={{ margin: '0 0 20px 0', fontWeight: 800 }}>{editingId ? 'تعديل بيانات الطالب' : 'إضافة طالب جديد'}</h3>
+			<h3 style={{ margin: '0 0 24px 0', fontWeight: 800, color: '#111827', fontSize: '1.2rem' }}>
+			  {editingId ? 'تعديل بيانات الطالب' : 'إضافة طالب جديد'}
+			</h3>
 			<form onSubmit={handleSave}>
 			  <div style={styles.inputGroup}>
-				<label style={{ fontWeight: 700, fontSize: '0.9rem' }}>الاسم الكامل</label>
+				<label style={styles.label}>الاسم الكامل</label>
 				<input required style={styles.input} value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
 			  </div>
 			  <div style={{ display: 'flex', gap: '16px' }}>
 				<div style={{ ...styles.inputGroup, flex: 1 }}>
-				  <label style={{ fontWeight: 700, fontSize: '0.9rem' }}>رقم الجوال</label>
+				  <label style={styles.label}>رقم الجوال</label>
 				  <input style={styles.input} value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
 				</div>
 				<div style={{ ...styles.inputGroup, flex: 1 }}>
-				  <label style={{ fontWeight: 700, fontSize: '0.9rem' }}>العمر</label>
+				  <label style={styles.label}>العمر</label>
 				  <input type="number" style={styles.input} value={formData.age} onChange={e => setFormData({...formData, age: e.target.value})} />
 				</div>
 			  </div>
 			  <div style={styles.inputGroup}>
-				<label style={{ fontWeight: 700, fontSize: '0.9rem' }}>المستوى</label>
+				<label style={styles.label}>المستوى الأكاديمي</label>
 				<select style={styles.input} value={formData.level} onChange={e => setFormData({...formData, level: e.target.value})}>
 				  <option>تأسيس</option><option>متوسط</option><option>متقدم</option><option>خاتم</option>
 				</select>
 			  </div>
 			  
-			  <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+			  <div style={{ display: 'flex', gap: '12px', marginTop: '32px' }}>
 				<button type="submit" style={{ ...styles.btnPrimary, flex: 1, justifyContent: 'center' }}>حفظ البيانات</button>
-				<button type="button" onClick={() => setIsModalOpen(false)} style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--border-subtle)', background: 'transparent', cursor: 'pointer' }}>إلغاء</button>
+				<button type="button" onClick={() => setIsModalOpen(false)} style={{ padding: '10px 20px', borderRadius: '6px', border: '1px solid #d1d5db', background: '#ffffff', cursor: 'pointer', fontWeight: 700, color: '#374151' }}>إلغاء</button>
 			  </div>
 			</form>
 		  </div>

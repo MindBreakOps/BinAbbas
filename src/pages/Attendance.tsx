@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { Icon } from '../components/ui/Icons';
 
 export default function Attendance() {
   const [students, setStudents] = useState<any[]>([]);
@@ -10,11 +11,9 @@ export default function Attendance() {
   useEffect(() => {
 	const fetchStudentsAndAttendance = async () => {
 	  setIsLoading(true);
-	  // 1. جلب الطلاب
 	  const { data: stdData } = await supabase.from('students').select('id, name, level').order('name');
 	  if (stdData) setStudents(stdData);
 
-	  // 2. جلب الحضور لليوم المحدد
 	  const { data: attData } = await supabase.from('attendance').select('student_name, status').eq('date', selectedDate);
 	  
 	  const records: Record<string, string> = {};
@@ -29,10 +28,8 @@ export default function Attendance() {
   }, [selectedDate]);
 
   const handleStatusChange = async (studentName: string, status: string) => {
-	// تحديث الواجهة فوراً
 	setAttendanceData(prev => ({ ...prev, [studentName]: status }));
 
-	// الحفظ في قاعدة البيانات
 	const { data: existing } = await supabase.from('attendance')
 	  .select('id').eq('student_name', studentName).eq('date', selectedDate).single();
 
@@ -43,64 +40,142 @@ export default function Attendance() {
 	}
   };
 
+  // حساب الملخص
+  const stats = { present: 0, excused: 0, absent: 0, unrecorded: 0 };
+  students.forEach(s => {
+	const st = attendanceData[s.name];
+	if (st === 'حاضر') stats.present++;
+	else if (st === 'مستأذن') stats.excused++;
+	else if (st === 'غائب') stats.absent++;
+	else stats.unrecorded++;
+  });
+
   const styles: { [key: string]: React.CSSProperties } = {
-	header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid var(--border-subtle)' },
-	title: { fontSize: '1.5rem', fontWeight: 800, margin: '0 0 8px 0', color: 'var(--text-primary)' },
-	input: { padding: '10px', border: '1px solid var(--border-subtle)', borderRadius: '4px', fontFamily: 'inherit', fontWeight: 700 },
-	table: { width: '100%', borderCollapse: 'collapse', textAlign: 'right', border: '1px solid var(--border-subtle)' },
-	th: { backgroundColor: 'var(--bg-app)', padding: '16px', borderBottom: '1px solid var(--border-subtle)', fontWeight: 800 },
-	td: { padding: '16px', borderBottom: '1px solid var(--border-subtle)' },
-	btnGroup: { display: 'flex', gap: '8px' },
-	btn: { padding: '6px 16px', border: '1px solid var(--border-subtle)', borderRadius: '4px', cursor: 'pointer', fontWeight: 700, backgroundColor: '#fff', color: 'var(--text-secondary)' },
-	btnActiveH: { backgroundColor: '#dcfce7', color: '#166534', borderColor: '#166534' },
-	btnActiveG: { backgroundColor: '#fee2e2', color: '#991b1b', borderColor: '#991b1b' },
-	btnActiveM: { backgroundColor: '#fef08a', color: '#854d0e', borderColor: '#854d0e' }
+	header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' },
+	titleGroup: { display: 'flex', flexDirection: 'column', gap: '4px' },
+	title: { fontSize: '1.5rem', fontWeight: 800, margin: 0, color: '#111827' },
+	subtitle: { fontSize: '0.85rem', color: '#6b7280', margin: 0 },
+	
+	// شريط التحكم باليوم
+	controlBar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '16px 24px', marginBottom: '24px' },
+	dateInputBox: { display: 'flex', alignItems: 'center', gap: '12px' },
+	dateInput: { padding: '10px 16px', border: '1px solid #d1d5db', borderRadius: '6px', fontFamily: 'inherit', fontWeight: 800, color: '#111827', outline: 'none' },
+	
+	// بطاقات الملخص (Summary Badges)
+	summaryGroup: { display: 'flex', gap: '12px' },
+	summaryBadge: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '8px 24px', borderRadius: '6px', border: '1px solid #e5e7eb', backgroundColor: '#f9fafb' },
+	summaryValue: { fontSize: '1.2rem', fontWeight: 900, color: '#111827' },
+	summaryLabel: { fontSize: '0.75rem', fontWeight: 700, color: '#6b7280' },
+
+	// الجدول
+	card: { backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
+	table: { width: '100%', borderCollapse: 'collapse', textAlign: 'right' },
+	th: { backgroundColor: '#f9fafb', padding: '14px 16px', borderBottom: '1px solid #e5e7eb', fontWeight: 800, fontSize: '0.8rem', color: '#4b5563', textTransform: 'uppercase' },
+	td: { padding: '12px 16px', borderBottom: '1px solid #e5e7eb' },
+	
+	// أزرار الحضور (Segmented Controls)
+	segmentGroup: { display: 'inline-flex', borderRadius: '6px', border: '1px solid #d1d5db', overflow: 'hidden' },
+	segmentBtn: { flex: 1, padding: '8px 16px', border: 'none', backgroundColor: '#ffffff', color: '#4b5563', cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem', transition: 'all 0.2s', borderLeft: '1px solid #d1d5db' },
+	
+	activePresent: { backgroundColor: '#10b981', color: '#ffffff' },
+	activeExcused: { backgroundColor: '#f59e0b', color: '#ffffff' },
+	activeAbsent: { backgroundColor: '#ef4444', color: '#ffffff' },
   };
 
   return (
 	<div>
 	  <div style={styles.header}>
-		<div>
-		  <h2 style={styles.title}>سجل الحضور والغياب اليومي</h2>
+		<div style={styles.titleGroup}>
+		  <h2 style={styles.title}>الحضور والغياب</h2>
+		  <p style={styles.subtitle}>سجل الحضور اليومي والمتابعة الدورية للطلاب</p>
 		</div>
-		<input 
-		  type="date" 
-		  style={styles.input} 
-		  value={selectedDate} 
-		  onChange={(e) => setSelectedDate(e.target.value)} 
-		/>
 	  </div>
 
-	  {isLoading ? <p>جاري التحميل...</p> : (
-		<table style={styles.table}>
-		  <thead>
-			<tr>
-			  <th style={styles.th}>اسم الطالب</th>
-			  <th style={styles.th}>المستوى</th>
-			  <th style={styles.th}>حالة الحضور</th>
-			</tr>
-		  </thead>
-		  <tbody>
-			{students.map(s => {
-			  const status = attendanceData[s.name] || '';
-			  return (
-				<tr key={s.id}>
-				  <td style={{ ...styles.td, fontWeight: 700 }}>{s.name}</td>
-				  <td style={styles.td}>{s.level}</td>
-				  <td style={styles.td}>
-					<div style={styles.btnGroup}>
-					  <button onClick={() => handleStatusChange(s.name, 'حاضر')} style={{ ...styles.btn, ...(status === 'حاضر' ? styles.btnActiveH : {}) }}>حاضر</button>
-					  <button onClick={() => handleStatusChange(s.name, 'مستأذن')} style={{ ...styles.btn, ...(status === 'مستأذن' ? styles.btnActiveM : {}) }}>مستأذن</button>
-					  <button onClick={() => handleStatusChange(s.name, 'غائب')} style={{ ...styles.btn, ...(status === 'غائب' ? styles.btnActiveG : {}) }}>غائب</button>
-					</div>
-				  </td>
-				</tr>
-			  );
-			})}
-			{students.length === 0 && <tr><td colSpan={3} style={{ textAlign: 'center', padding: '20px' }}>لا يوجد طلاب مسجلين.</td></tr>}
-		  </tbody>
-		</table>
-	  )}
+	  <div style={styles.controlBar}>
+		<div style={styles.dateInputBox}>
+		  <label style={{ fontWeight: 800, color: '#374151' }}>سجل يوم:</label>
+		  <input 
+			type="date" 
+			style={styles.dateInput} 
+			value={selectedDate} 
+			onChange={(e) => setSelectedDate(e.target.value)} 
+		  />
+		</div>
+		
+		<div style={styles.summaryGroup}>
+		  <div style={styles.summaryBadge}>
+			<span style={{...styles.summaryValue, color: '#10b981'}}>{stats.present}</span>
+			<span style={styles.summaryLabel}>حاضر</span>
+		  </div>
+		  <div style={styles.summaryBadge}>
+			<span style={{...styles.summaryValue, color: '#f59e0b'}}>{stats.excused}</span>
+			<span style={styles.summaryLabel}>مستأذن</span>
+		  </div>
+		  <div style={styles.summaryBadge}>
+			<span style={{...styles.summaryValue, color: '#ef4444'}}>{stats.absent}</span>
+			<span style={styles.summaryLabel}>غائب</span>
+		  </div>
+		  <div style={styles.summaryBadge}>
+			<span style={{...styles.summaryValue, color: '#9ca3af'}}>{stats.unrecorded}</span>
+			<span style={styles.summaryLabel}>لم يسجل</span>
+		  </div>
+		</div>
+	  </div>
+
+	  <div style={styles.card}>
+		{isLoading ? <p style={{ padding: '32px', textAlign: 'center', color: '#6b7280' }}>جاري تحميل الكشف...</p> : (
+		  <table style={styles.table}>
+			<thead>
+			  <tr>
+				<th style={styles.th}>اسم الطالب</th>
+				<th style={styles.th}>المستوى الأكاديمي</th>
+				<th style={styles.th}>إجراءات التسجيل</th>
+			  </tr>
+			</thead>
+			<tbody>
+			  {students.map(s => {
+				const status = attendanceData[s.name] || '';
+				return (
+				  <tr key={s.id}>
+					<td style={{ ...styles.td, fontWeight: 800, color: '#111827' }}>{s.name}</td>
+					<td style={styles.td}>
+					  <span style={{ backgroundColor: '#f3f4f6', padding: '4px 10px', borderRadius: '4px', fontSize: '0.8rem', color: '#374151' }}>
+						{s.level || '—'}
+					  </span>
+					</td>
+					<td style={styles.td}>
+					  <div style={styles.segmentGroup}>
+						{/* زر الغياب (على اليسار) */}
+						<button 
+						  onClick={() => handleStatusChange(s.name, 'غائب')} 
+						  style={{ ...styles.segmentBtn, borderLeft: 'none', ...(status === 'غائب' ? styles.activeAbsent : {}) }}
+						>
+						  غائب
+						</button>
+						{/* زر الاستئذان (في المنتصف) */}
+						<button 
+						  onClick={() => handleStatusChange(s.name, 'مستأذن')} 
+						  style={{ ...styles.segmentBtn, ...(status === 'مستأذن' ? styles.activeExcused : {}) }}
+						>
+						  مستأذن
+						</button>
+						{/* زر الحضور (على اليمين) */}
+						<button 
+						  onClick={() => handleStatusChange(s.name, 'حاضر')} 
+						  style={{ ...styles.segmentBtn, ...(status === 'حاضر' ? styles.activePresent : {}) }}
+						>
+						  حاضر
+						</button>
+					  </div>
+					</td>
+				  </tr>
+				);
+			  })}
+			  {students.length === 0 && <tr><td colSpan={3} style={{ textAlign: 'center', padding: '32px', color: '#6b7280' }}>لا يوجد طلاب مسجلين في النظام.</td></tr>}
+			</tbody>
+		  </table>
+		)}
+	  </div>
 	</div>
   );
 }

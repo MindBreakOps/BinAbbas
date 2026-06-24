@@ -1,23 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { useTenant } from '../context/TenantContext';
 import { supabase } from '../lib/supabase';
+import { Icon } from '../components/ui/Icons';
 
 export default function TeacherRev() {
-  const { workspace } = useTenant();
   const [revisions, setRevisions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Form State (Create)
-  const [form, setForm] = useState({ reciter_name: '', listener_name: '', surah: '', from_verse: '', to_verse: '', grade: '' });
+  // States for CRUD
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  
+  const [formData, setFormData] = useState({
+	date: new Date().toISOString().split('T')[0],
+	reciter_name: '',
+	listener_name: '',
+	surah: '',
+	from_verse: '',
+	to_verse: '',
+	grade: ''
+  });
 
   const fetchRevisions = async () => {
-	if (!workspace) return;
 	setIsLoading(true);
-	// جلب البيانات من جدول teacher_revisions[cite: 2]
+	// الاعتماد على هيكل الجدول الفعلي
 	const { data, error } = await supabase
 	  .from('teacher_revisions')
 	  .select('*')
-	  .eq('workspace_id', workspace.id)
 	  .order('date', { ascending: false });
 	  
 	if (!error && data) setRevisions(data);
@@ -26,121 +34,180 @@ export default function TeacherRev() {
 
   useEffect(() => {
 	fetchRevisions();
-  }, [workspace]);
+  }, []);
 
-  // إضافة سجل جديد (Create)
-  const handleAdd = async (e: React.FormEvent) => {
-	e.preventDefault();
-	if (!workspace || !form.reciter_name || !form.listener_name) return alert('يرجى تعبئة الأسماء');
-
-	const { error } = await supabase.from('teacher_revisions').insert([{
-	  workspace_id: workspace.id,
-	  reciter_name: form.reciter_name,
-	  listener_name: form.listener_name,
-	  surah: form.surah,
-	  from_verse: form.from_verse,
-	  to_verse: form.to_verse,
-	  grade: form.grade ? parseInt(form.grade) : null,
-	  date: new Date().toISOString().split('T')[0] // تاريخ اليوم
-	}]);
-
-	if (!error) {
-	  setForm({ reciter_name: '', listener_name: '', surah: '', from_verse: '', to_verse: '', grade: '' });
-	  fetchRevisions();
-	} else {
-	  alert('خطأ في الإضافة');
-	}
+  const openCreateModal = () => {
+	setEditingId(null);
+	setFormData({
+	  date: new Date().toISOString().split('T')[0],
+	  reciter_name: '', listener_name: '', surah: '', from_verse: '', to_verse: '', grade: ''
+	});
+	setIsModalOpen(true);
   };
 
-  // حذف سجل (Delete)
+  const openEditModal = (item: any) => {
+	setEditingId(item.id);
+	setFormData({
+	  date: item.date || '',
+	  reciter_name: item.reciter_name || '',
+	  listener_name: item.listener_name || '',
+	  surah: item.surah || '',
+	  from_verse: item.from_verse || '',
+	  to_verse: item.to_verse || '',
+	  grade: item.grade ? item.grade.toString() : ''
+	});
+	setIsModalOpen(true);
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+	e.preventDefault();
+	const payload = {
+	  date: formData.date || null,
+	  reciter_name: formData.reciter_name,
+	  listener_name: formData.listener_name,
+	  surah: formData.surah || null,
+	  from_verse: formData.from_verse || null,
+	  to_verse: formData.to_verse || null,
+	  grade: formData.grade ? parseInt(formData.grade) : null
+	};
+
+	if (editingId) {
+	  await supabase.from('teacher_revisions').update(payload).eq('id', editingId);
+	} else {
+	  await supabase.from('teacher_revisions').insert([payload]);
+	}
+
+	setIsModalOpen(false);
+	fetchRevisions();
+  };
+
   const handleDelete = async (id: string) => {
-	if (!window.confirm('تأكيد حذف السجل؟')) return;
-	const { error } = await supabase.from('teacher_revisions').delete().eq('id', id);
-	if (!error) fetchRevisions();
+	if (!window.confirm('هل أنت متأكد من حذف هذا السجل؟')) return;
+	await supabase.from('teacher_revisions').delete().eq('id', id);
+	fetchRevisions();
   };
 
   const styles: { [key: string]: React.CSSProperties } = {
-	header: { marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid var(--border-subtle)' },
-	title: { fontSize: '1.5rem', fontWeight: 800, margin: '0 0 8px 0' },
-	card: { backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '24px', marginBottom: '24px', boxShadow: 'var(--shadow-sm)' },
-	formGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px', alignItems: 'end' },
-	inputGroup: { display: 'flex', flexDirection: 'column', gap: '8px' },
-	label: { fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)' },
-	input: { padding: '10px', borderRadius: '8px', border: '1px solid var(--border-subtle)', fontFamily: 'inherit' },
-	btnPrimary: { backgroundColor: 'var(--forest-green)', color: '#fff', border: 'none', padding: '10px 16px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', height: '40px' },
-	tableWrapper: { backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: '12px', overflow: 'hidden' },
-	table: { width: '100%', borderCollapse: 'collapse', textAlign: 'right' },
-	th: { backgroundColor: 'var(--forest-light)', padding: '14px 16px', borderBottom: '1px solid var(--border-subtle)' },
-	td: { padding: '14px 16px', borderBottom: '1px solid var(--border-subtle)', fontSize: '0.95rem' },
+	header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', borderBottom: '1px solid #e5e7eb', paddingBottom: '24px' },
+	title: { fontSize: '1.5rem', fontWeight: 800, color: '#111827', margin: '0 0 8px 0' },
+	subtitle: { fontSize: '0.85rem', color: '#6b7280', margin: 0 },
+	table: { width: '100%', borderCollapse: 'collapse', textAlign: 'right', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '4px' },
+	th: { padding: '14px 16px', borderBottom: '1px solid #e5e7eb', backgroundColor: '#f9fafb', color: '#374151', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase' },
+	td: { padding: '14px 16px', borderBottom: '1px solid #e5e7eb', color: '#111827', fontSize: '0.9rem', fontWeight: 600 },
+	btnPrimary: { backgroundColor: '#064e3b', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '4px', fontWeight: 700, cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center' },
+	actionGroup: { display: 'flex', gap: '8px' },
+	btnEdit: { backgroundColor: 'transparent', color: '#059669', border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: '0.85rem' },
+	btnDelete: { backgroundColor: 'transparent', color: '#ef4444', border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: '0.85rem' },
+	modalOverlay: { position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
+	modalContent: { backgroundColor: '#fff', padding: '32px', borderRadius: '8px', width: '100%', maxWidth: '550px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' },
+	inputGroup: { display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' },
+	label: { fontSize: '0.8rem', fontWeight: 800, color: '#374151', textTransform: 'uppercase' },
+	input: { padding: '10px', borderRadius: '4px', border: '1px solid #d1d5db', fontFamily: 'inherit', outline: 'none' }
   };
 
   return (
 	<div>
 	  <div style={styles.header}>
-		<h2 style={styles.title}>مقرأة المعلمين</h2>
-		<p style={{ margin: 0, color: 'var(--text-secondary)' }}>سجل المراجعة والتسميع المتبادل بين المعلمين</p>
+		<div>
+		  <h2 style={styles.title}>مقرأة المعلمين (التسميع المتبادل)</h2>
+		  <p style={styles.subtitle}>سجل المراجعة والتسميع بين الكادر التعليمي</p>
+		</div>
+		<button style={styles.btnPrimary} onClick={openCreateModal}>
+		  <Icon name="plus" size={16} /> إضافة سجل جديد
+		</button>
 	  </div>
 
-	  <div style={styles.card}>
-		<form onSubmit={handleAdd} style={styles.formGrid}>
-		  <div style={styles.inputGroup}>
-			<label style={styles.label}>القارئ (المُسَمِّع)</label>
-			<input style={styles.input} value={form.reciter_name} onChange={e => setForm({...form, reciter_name: e.target.value})} required />
-		  </div>
-		  <div style={styles.inputGroup}>
-			<label style={styles.label}>المقرئ (المستمع)</label>
-			<input style={styles.input} value={form.listener_name} onChange={e => setForm({...form, listener_name: e.target.value})} required />
-		  </div>
-		  <div style={styles.inputGroup}>
-			<label style={styles.label}>السورة</label>
-			<input style={styles.input} value={form.surah} onChange={e => setForm({...form, surah: e.target.value})} />
-		  </div>
-		  <div style={styles.inputGroup}>
-			<label style={styles.label}>من آية</label>
-			<input style={styles.input} value={form.from_verse} onChange={e => setForm({...form, from_verse: e.target.value})} />
-		  </div>
-		  <div style={styles.inputGroup}>
-			<label style={styles.label}>إلى آية</label>
-			<input style={styles.input} value={form.to_verse} onChange={e => setForm({...form, to_verse: e.target.value})} />
-		  </div>
-		  <div style={styles.inputGroup}>
-			<label style={styles.label}>الدرجة</label>
-			<input style={styles.input} type="number" value={form.grade} onChange={e => setForm({...form, grade: e.target.value})} />
-		  </div>
-		  <button type="submit" style={styles.btnPrimary}>إضافة سجل</button>
-		</form>
-	  </div>
-
-	  <div style={styles.tableWrapper}>
+	  {isLoading ? <p style={{ color: '#6b7280' }}>جاري تحميل السجلات...</p> : (
 		<table style={styles.table}>
 		  <thead>
 			<tr>
 			  <th style={styles.th}>التاريخ</th>
-			  <th style={styles.th}>القارئ</th>
-			  <th style={styles.th}>المستمع</th>
-			  <th style={styles.th}>السورة</th>
-			  <th style={styles.th}>المقطع (من-إلى)</th>
+			  <th style={styles.th}>القارئ (المُسَمِّع)</th>
+			  <th style={styles.th}>المستمع (المُقَيِّم)</th>
+			  <th style={styles.th}>السورة والمقطع</th>
 			  <th style={styles.th}>الدرجة</th>
-			  <th style={styles.th}>إجراء</th>
+			  <th style={styles.th}>إجراءات</th>
 			</tr>
 		  </thead>
 		  <tbody>
 			{revisions.map(r => (
 			  <tr key={r.id}>
-				<td style={{...styles.td, color: 'var(--text-secondary)'}}>{r.date}</td>
-				<td style={{...styles.td, fontWeight: 700}}>{r.reciter_name}</td>
+				<td style={{ ...styles.td, color: '#6b7280' }}>{r.date}</td>
+				<td style={{ ...styles.td, color: '#064e3b', fontWeight: 800 }}>{r.reciter_name}</td>
 				<td style={styles.td}>{r.listener_name}</td>
-				<td style={styles.td}>{r.surah}</td>
-				<td style={styles.td}>{r.from_verse} - {r.to_verse}</td>
-				<td style={{...styles.td, fontWeight: 800, color: 'var(--forest-green)'}}>{r.grade}</td>
 				<td style={styles.td}>
-				  <button style={{ background: 'transparent', border: 'none', color: '#b91c1c', cursor: 'pointer', fontWeight: 700 }} onClick={() => handleDelete(r.id)}>حذف</button>
+				  {r.surah || '—'} 
+				  {r.from_verse && r.to_verse ? ` (${r.from_verse} - ${r.to_verse})` : ''}
+				</td>
+				<td style={styles.td}>
+				  {r.grade ? <span style={{ color: r.grade >= 90 ? '#059669' : '#d97706', fontWeight: 900 }}>{r.grade}%</span> : '—'}
+				</td>
+				<td style={styles.td}>
+				  <div style={styles.actionGroup}>
+					<button style={styles.btnEdit} onClick={() => openEditModal(r)}>تعديل</button>
+					<span style={{ color: '#d1d5db' }}>|</span>
+					<button style={styles.btnDelete} onClick={() => handleDelete(r.id)}>حذف</button>
+				  </div>
 				</td>
 			  </tr>
 			))}
+			{revisions.length === 0 && <tr><td colSpan={6} style={{ textAlign: 'center', padding: '24px', color: '#6b7280' }}>لا توجد سجلات مقرأة حالياً.</td></tr>}
 		  </tbody>
 		</table>
-	  </div>
+	  )}
+
+	  {isModalOpen && (
+		<div style={styles.modalOverlay}>
+		  <div style={styles.modalContent}>
+			<h3 style={{ margin: '0 0 24px 0', fontWeight: 800, fontSize: '1.2rem', color: '#111827' }}>
+			  {editingId ? 'تعديل السجل' : 'إضافة سجل تسميع جديد'}
+			</h3>
+			<form onSubmit={handleSave}>
+			  <div style={{ display: 'flex', gap: '16px' }}>
+				<div style={{ ...styles.inputGroup, flex: 1 }}>
+				  <label style={styles.label}>القارئ (المُسَمِّع)</label>
+				  <input required style={styles.input} value={formData.reciter_name} onChange={e => setFormData({...formData, reciter_name: e.target.value})} />
+				</div>
+				<div style={{ ...styles.inputGroup, flex: 1 }}>
+				  <label style={styles.label}>المستمع (المُقَيِّم)</label>
+				  <input required style={styles.input} value={formData.listener_name} onChange={e => setFormData({...formData, listener_name: e.target.value})} />
+				</div>
+			  </div>
+
+			  <div style={{ display: 'flex', gap: '16px' }}>
+				<div style={{ ...styles.inputGroup, flex: 2 }}>
+				  <label style={styles.label}>السورة</label>
+				  <input style={styles.input} value={formData.surah} onChange={e => setFormData({...formData, surah: e.target.value})} />
+				</div>
+				<div style={{ ...styles.inputGroup, flex: 1 }}>
+				  <label style={styles.label}>الدرجة (%)</label>
+				  <input type="number" max="100" min="0" style={styles.input} value={formData.grade} onChange={e => setFormData({...formData, grade: e.target.value})} />
+				</div>
+			  </div>
+
+			  <div style={{ display: 'flex', gap: '16px' }}>
+				<div style={{ ...styles.inputGroup, flex: 1 }}>
+				  <label style={styles.label}>من آية</label>
+				  <input style={styles.input} value={formData.from_verse} onChange={e => setFormData({...formData, from_verse: e.target.value})} />
+				</div>
+				<div style={{ ...styles.inputGroup, flex: 1 }}>
+				  <label style={styles.label}>إلى آية</label>
+				  <input style={styles.input} value={formData.to_verse} onChange={e => setFormData({...formData, to_verse: e.target.value})} />
+				</div>
+				<div style={{ ...styles.inputGroup, flex: 1 }}>
+				  <label style={styles.label}>التاريخ</label>
+				  <input type="date" style={styles.input} value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} />
+				</div>
+			  </div>
+			  
+			  <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+				<button type="submit" style={{ ...styles.btnPrimary, flex: 1, justifyContent: 'center' }}>حفظ السجل</button>
+				<button type="button" onClick={() => setIsModalOpen(false)} style={{ padding: '10px 20px', borderRadius: '4px', border: '1px solid #d1d5db', background: '#fff', cursor: 'pointer', fontWeight: 700 }}>إلغاء</button>
+			  </div>
+			</form>
+		  </div>
+		</div>
+	  )}
 	</div>
   );
 }
