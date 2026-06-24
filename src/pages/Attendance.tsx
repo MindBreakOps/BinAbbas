@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Icon } from '../components/ui/Icons';
+
+// أيقونات بسيطة للبطاقات
+const Icons = {
+  Present: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>,
+  Excused: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>,
+  Absent: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>,
+  Unrecorded: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+};
 
 export default function Attendance() {
   const [students, setStudents] = useState<any[]>([]);
@@ -50,50 +57,83 @@ export default function Attendance() {
 	else stats.unrecorded++;
   });
 
-  const styles: { [key: string]: React.CSSProperties } = {
+  // الألوان الأساسية للثيم الجديد
+  const theme = {
+	primary: '#2A5D4E',
+	lightBg: '#F9FAFB',
+	cardBg: '#FFFFFF',
+	border: '#E5E7EB',
+	colors: {
+	  present: { main: '#10B981', bg: '#ECFDF5', border: '#A7F3D0' },
+	  excused: { main: '#F59E0B', bg: '#FFFBEB', border: '#FDE68A' },
+	  absent: { main: '#EF4444', bg: '#FEF2F2', border: '#FECACA' },
+	  unrecorded: { main: '#6B7280', bg: '#F3F4F6', border: '#D1D5DB' }
+	}
+  };
+
+  const styles: { [key: string]: React.CSSProperties | any } = {
 	header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' },
-	titleGroup: { display: 'flex', flexDirection: 'column', gap: '4px' },
-	title: { fontSize: '1.5rem', fontWeight: 800, margin: 0, color: '#111827' },
-	subtitle: { fontSize: '0.85rem', color: '#6b7280', margin: 0 },
+	titleGroup: { display: 'flex', flexDirection: 'column', gap: '6px' },
+	title: { fontSize: '1.8rem', fontWeight: 900, margin: 0, color: theme.primary, letterSpacing: '-0.5px' },
+	subtitle: { fontSize: '0.9rem', color: '#6B7280', margin: 0, fontWeight: 600 },
 	
 	// شريط التحكم باليوم
-	controlBar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '16px 24px', marginBottom: '24px' },
+	controlBar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: theme.cardBg, border: `1px solid ${theme.border}`, borderRadius: '12px', padding: '20px 24px', marginBottom: '24px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.02)' },
 	dateInputBox: { display: 'flex', alignItems: 'center', gap: '12px' },
-	dateInput: { padding: '10px 16px', border: '1px solid #d1d5db', borderRadius: '6px', fontFamily: 'inherit', fontWeight: 800, color: '#111827', outline: 'none' },
+	dateLabel: { fontWeight: 800, color: theme.primary, fontSize: '0.95rem' },
+	dateInput: { padding: '10px 16px', border: `2px solid ${theme.border}`, borderRadius: '8px', fontFamily: 'inherit', fontWeight: 800, color: '#111827', outline: 'none', transition: 'border-color 0.2s', backgroundColor: theme.lightBg },
 	
-	// بطاقات الملخص (Summary Badges)
-	summaryGroup: { display: 'flex', gap: '12px' },
-	summaryBadge: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '8px 24px', borderRadius: '6px', border: '1px solid #e5e7eb', backgroundColor: '#f9fafb' },
-	summaryValue: { fontSize: '1.2rem', fontWeight: 900, color: '#111827' },
-	summaryLabel: { fontSize: '0.75rem', fontWeight: 700, color: '#6b7280' },
+	// بطاقات الملخص
+	summaryGroup: { display: 'flex', gap: '16px' },
+	summaryBadge: (type: 'present' | 'excused' | 'absent' | 'unrecorded') => ({
+	  display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 20px', borderRadius: '10px', 
+	  backgroundColor: theme.colors[type].bg, border: `1px solid ${theme.colors[type].border}`
+	}),
+	summaryIconContainer: (type: 'present' | 'excused' | 'absent' | 'unrecorded') => ({
+	  display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', 
+	  borderRadius: '8px', backgroundColor: '#FFFFFF', color: theme.colors[type].main,
+	  boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+	}),
+	summaryText: { display: 'flex', flexDirection: 'column' },
+	summaryValue: (type: 'present' | 'excused' | 'absent' | 'unrecorded') => ({ fontSize: '1.25rem', fontWeight: 900, color: theme.colors[type].main, lineHeight: '1.2' }),
+	summaryLabel: { fontSize: '0.75rem', fontWeight: 800, color: '#6B7280' },
 
 	// الجدول
-	card: { backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
+	card: { backgroundColor: theme.cardBg, border: `1px solid ${theme.border}`, borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' },
 	table: { width: '100%', borderCollapse: 'collapse', textAlign: 'right' },
-	th: { backgroundColor: '#f9fafb', padding: '14px 16px', borderBottom: '1px solid #e5e7eb', fontWeight: 800, fontSize: '0.8rem', color: '#4b5563', textTransform: 'uppercase' },
-	td: { padding: '12px 16px', borderBottom: '1px solid #e5e7eb' },
+	th: { backgroundColor: 'rgba(42, 93, 78, 0.03)', padding: '16px', borderBottom: `2px solid ${theme.border}`, fontWeight: 900, fontSize: '0.85rem', color: theme.primary },
+	td: { padding: '16px', borderBottom: `1px solid ${theme.border}` },
 	
-	// أزرار الحضور (Segmented Controls)
-	segmentGroup: { display: 'inline-flex', borderRadius: '6px', border: '1px solid #d1d5db', overflow: 'hidden' },
-	segmentBtn: { flex: 1, padding: '8px 16px', border: 'none', backgroundColor: '#ffffff', color: '#4b5563', cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem', transition: 'all 0.2s', borderLeft: '1px solid #d1d5db' },
+	// أزرار الحضور (Pill Buttons)
+	actionGroup: { display: 'flex', gap: '8px', alignItems: 'center' },
+	btnBase: { padding: '8px 20px', borderRadius: '20px', border: '2px solid', cursor: 'pointer', fontWeight: 800, fontSize: '0.85rem', transition: 'all 0.2s', fontFamily: 'inherit' },
 	
-	activePresent: { backgroundColor: '#10b981', color: '#ffffff' },
-	activeExcused: { backgroundColor: '#f59e0b', color: '#ffffff' },
-	activeAbsent: { backgroundColor: '#ef4444', color: '#ffffff' },
+	// دوال مساعدة لستايل الأزرار بناءً على الحالة
+	getBtnStyle: (type: 'present' | 'excused' | 'absent', currentStatus: string) => {
+	  const isMatch = currentStatus === (type === 'present' ? 'حاضر' : type === 'excused' ? 'مستأذن' : 'غائب');
+	  const colors = theme.colors[type];
+	  return {
+		...styles.btnBase,
+		backgroundColor: isMatch ? colors.main : 'transparent',
+		color: isMatch ? '#FFFFFF' : colors.main,
+		borderColor: isMatch ? colors.main : colors.border,
+		boxShadow: isMatch ? `0 2px 8px ${colors.main}40` : 'none',
+	  };
+	}
   };
 
   return (
 	<div>
 	  <div style={styles.header}>
 		<div style={styles.titleGroup}>
-		  <h2 style={styles.title}>الحضور والغياب</h2>
-		  <p style={styles.subtitle}>سجل الحضور اليومي والمتابعة الدورية للطلاب</p>
+		  <h2 style={styles.title}>سجل الحضور والغياب</h2>
+		  <p style={styles.subtitle}>المتابعة اليومية لانتظام الطلاب في الحلقات الأكاديمية</p>
 		</div>
 	  </div>
 
 	  <div style={styles.controlBar}>
 		<div style={styles.dateInputBox}>
-		  <label style={{ fontWeight: 800, color: '#374151' }}>سجل يوم:</label>
+		  <label style={styles.dateLabel}>تاريخ السجل:</label>
 		  <input 
 			type="date" 
 			style={styles.dateInput} 
@@ -103,27 +143,39 @@ export default function Attendance() {
 		</div>
 		
 		<div style={styles.summaryGroup}>
-		  <div style={styles.summaryBadge}>
-			<span style={{...styles.summaryValue, color: '#10b981'}}>{stats.present}</span>
-			<span style={styles.summaryLabel}>حاضر</span>
+		  <div style={styles.summaryBadge('present')}>
+			<div style={styles.summaryIconContainer('present')}><Icons.Present /></div>
+			<div style={styles.summaryText}>
+			  <span style={styles.summaryValue('present')}>{stats.present}</span>
+			  <span style={styles.summaryLabel}>حاضر</span>
+			</div>
 		  </div>
-		  <div style={styles.summaryBadge}>
-			<span style={{...styles.summaryValue, color: '#f59e0b'}}>{stats.excused}</span>
-			<span style={styles.summaryLabel}>مستأذن</span>
+		  <div style={styles.summaryBadge('excused')}>
+			<div style={styles.summaryIconContainer('excused')}><Icons.Excused /></div>
+			<div style={styles.summaryText}>
+			  <span style={styles.summaryValue('excused')}>{stats.excused}</span>
+			  <span style={styles.summaryLabel}>مستأذن</span>
+			</div>
 		  </div>
-		  <div style={styles.summaryBadge}>
-			<span style={{...styles.summaryValue, color: '#ef4444'}}>{stats.absent}</span>
-			<span style={styles.summaryLabel}>غائب</span>
+		  <div style={styles.summaryBadge('absent')}>
+			<div style={styles.summaryIconContainer('absent')}><Icons.Absent /></div>
+			<div style={styles.summaryText}>
+			  <span style={styles.summaryValue('absent')}>{stats.absent}</span>
+			  <span style={styles.summaryLabel}>غائب</span>
+			</div>
 		  </div>
-		  <div style={styles.summaryBadge}>
-			<span style={{...styles.summaryValue, color: '#9ca3af'}}>{stats.unrecorded}</span>
-			<span style={styles.summaryLabel}>لم يسجل</span>
+		  <div style={styles.summaryBadge('unrecorded')}>
+			<div style={styles.summaryIconContainer('unrecorded')}><Icons.Unrecorded /></div>
+			<div style={styles.summaryText}>
+			  <span style={styles.summaryValue('unrecorded')}>{stats.unrecorded}</span>
+			  <span style={styles.summaryLabel}>لم يسجل</span>
+			</div>
 		  </div>
 		</div>
 	  </div>
 
 	  <div style={styles.card}>
-		{isLoading ? <p style={{ padding: '32px', textAlign: 'center', color: '#6b7280' }}>جاري تحميل الكشف...</p> : (
+		{isLoading ? <p style={{ padding: '40px', textAlign: 'center', color: '#6b7280', fontWeight: 700 }}>جاري تحميل كشف الحضور...</p> : (
 		  <table style={styles.table}>
 			<thead>
 			  <tr>
@@ -137,32 +189,32 @@ export default function Attendance() {
 				const status = attendanceData[s.name] || '';
 				return (
 				  <tr key={s.id}>
-					<td style={{ ...styles.td, fontWeight: 800, color: '#111827' }}>{s.name}</td>
+					<td style={{ ...styles.td, fontWeight: 800, color: '#111827', fontSize: '0.95rem' }}>{s.name}</td>
 					<td style={styles.td}>
-					  <span style={{ backgroundColor: '#f3f4f6', padding: '4px 10px', borderRadius: '4px', fontSize: '0.8rem', color: '#374151' }}>
-						{s.level || '—'}
+					  <span style={{ backgroundColor: theme.lightBg, border: `1px solid ${theme.border}`, padding: '6px 12px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 700, color: '#4B5563' }}>
+						{s.level || 'غير محدد'}
 					  </span>
 					</td>
 					<td style={styles.td}>
-					  <div style={styles.segmentGroup}>
-						{/* زر الغياب (على اليسار) */}
+					  <div style={styles.actionGroup}>
+						{/* زر الغياب */}
 						<button 
 						  onClick={() => handleStatusChange(s.name, 'غائب')} 
-						  style={{ ...styles.segmentBtn, borderLeft: 'none', ...(status === 'غائب' ? styles.activeAbsent : {}) }}
+						  style={styles.getBtnStyle('absent', status)}
 						>
 						  غائب
 						</button>
-						{/* زر الاستئذان (في المنتصف) */}
+						{/* زر الاستئذان */}
 						<button 
 						  onClick={() => handleStatusChange(s.name, 'مستأذن')} 
-						  style={{ ...styles.segmentBtn, ...(status === 'مستأذن' ? styles.activeExcused : {}) }}
+						  style={styles.getBtnStyle('excused', status)}
 						>
 						  مستأذن
 						</button>
-						{/* زر الحضور (على اليمين) */}
+						{/* زر الحضور */}
 						<button 
 						  onClick={() => handleStatusChange(s.name, 'حاضر')} 
-						  style={{ ...styles.segmentBtn, ...(status === 'حاضر' ? styles.activePresent : {}) }}
+						  style={styles.getBtnStyle('present', status)}
 						>
 						  حاضر
 						</button>
@@ -171,7 +223,7 @@ export default function Attendance() {
 				  </tr>
 				);
 			  })}
-			  {students.length === 0 && <tr><td colSpan={3} style={{ textAlign: 'center', padding: '32px', color: '#6b7280' }}>لا يوجد طلاب مسجلين في النظام.</td></tr>}
+			  {students.length === 0 && <tr><td colSpan={3} style={{ textAlign: 'center', padding: '40px', color: '#6b7280', fontWeight: 700 }}>لا يوجد طلاب مسجلين في النظام.</td></tr>}
 			</tbody>
 		  </table>
 		)}

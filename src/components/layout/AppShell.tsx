@@ -36,19 +36,102 @@ export default function AppShell() {
 	return 'النظام';
   };
 
+  // الألوان المتناسقة مع الثيم الجديد
+  const theme = {
+	primary: '#2A5D4E', // الأخضر الغامق
+	bg: '#F9FAFB', // خلفية رمادية فاتحة جداً للمحتوى
+	border: '#E0EFDF' // أخضر فاتح للحدود
+  };
+
   const styles: { [key: string]: React.CSSProperties } = {
-	layout: { display: 'flex', height: '100vh', backgroundColor: '#f9fafb', direction: 'rtl', fontFamily: 'system-ui, -apple-system, sans-serif' },
-	mainArea: { flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' },
-	topBar: { height: '64px', backgroundColor: '#ffffff', borderBottom: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 32px', flexShrink: 0, zIndex: 10 },
-	topTitle: { margin: 0, color: '#111827', fontSize: '1.2rem', fontWeight: 800 },
-	userInfo: { display: 'flex', alignItems: 'center', gap: '16px' },
-	divider: { width: '1px', height: '24px', backgroundColor: '#e5e7eb', margin: '0 8px' },
-	btnLogout: { display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '6px', color: '#ef4444', fontWeight: 700, cursor: 'pointer', fontSize: '0.85rem', transition: 'all 0.2s', fontFamily: 'inherit' },
-	avatar: { width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #e5e7eb' },
-	userDetails: { display: 'flex', flexDirection: 'column', textAlign: 'left' },
-	userName: { fontSize: '0.85rem', fontWeight: 800, color: '#111827' },
-	userRole: { fontSize: '0.75rem', color: '#6b7280', fontWeight: 600 },
-	contentArea: { flex: 1, padding: '32px', overflowY: 'auto' }
+	layout: { 
+	  display: 'flex', 
+	  height: '100vh', 
+	  width: '100vw', 
+	  backgroundColor: theme.bg, 
+	  direction: 'rtl', 
+	  fontFamily: 'system-ui, -apple-system, sans-serif',
+	  overflow: 'hidden' 
+	},
+	mainArea: { 
+	  flex: 1, 
+	  display: 'flex', 
+	  flexDirection: 'column', 
+	  overflow: 'hidden' 
+	},
+	topBar: { 
+	  height: '80px', // مطابقة لارتفاع ترويسة الشريط الجانبي
+	  backgroundColor: '#ffffff', 
+	  borderBottom: `1px solid ${theme.border}`, 
+	  display: 'flex', 
+	  alignItems: 'center', 
+	  justifyContent: 'space-between', 
+	  padding: '0 32px', 
+	  flexShrink: 0, 
+	  zIndex: 10,
+	  transition: 'all 0.3s'
+	},
+	topTitle: { 
+	  margin: 0, 
+	  color: theme.primary, 
+	  fontSize: '1.25rem', 
+	  fontWeight: 900 
+	},
+	userInfo: { 
+	  display: 'flex', 
+	  alignItems: 'center', 
+	  gap: '16px' 
+	},
+	divider: { 
+	  width: '2px', 
+	  height: '24px', 
+	  backgroundColor: theme.border, 
+	  margin: '0 8px',
+	  borderRadius: '2px'
+	},
+	btnLogout: { 
+	  display: 'flex', 
+	  alignItems: 'center', 
+	  gap: '8px', 
+	  padding: '8px 16px', 
+	  backgroundColor: '#ffffff', 
+	  border: '1px solid #fee2e2', 
+	  borderRadius: '8px', 
+	  color: '#ef4444', 
+	  fontWeight: 800, 
+	  cursor: 'pointer', 
+	  fontSize: '0.85rem', 
+	  transition: 'all 0.2s', 
+	  fontFamily: 'inherit' 
+	},
+	avatar: { 
+	  width: '40px', 
+	  height: '40px', 
+	  borderRadius: '10px', 
+	  objectFit: 'cover', 
+	  border: `2px solid ${theme.border}` 
+	},
+	userDetails: { 
+	  display: 'flex', 
+	  flexDirection: 'column', 
+	  textAlign: 'left' 
+	},
+	userName: { 
+	  fontSize: '0.9rem', 
+	  fontWeight: 900, 
+	  color: theme.primary 
+	},
+	userRole: { 
+	  fontSize: '0.75rem', 
+	  color: '#6b7280', 
+	  fontWeight: 700 
+	},
+	contentArea: { 
+	  flex: 1, 
+	  padding: '32px', 
+	  overflowY: 'auto',
+	  backgroundColor: theme.bg
+	}
   };
 
   return (
@@ -64,7 +147,7 @@ export default function AppShell() {
 			  onClick={handleLogout} 
 			  style={styles.btnLogout}
 			  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#fef2f2'; e.currentTarget.style.borderColor = '#fca5a5'; }}
-			  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#ffffff'; e.currentTarget.style.borderColor = '#e5e7eb'; }}
+			  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#ffffff'; e.currentTarget.style.borderColor = '#fee2e2'; }}
 			>
 			  <LogoutIcon />
 			  تسجيل الخروج
@@ -74,7 +157,8 @@ export default function AppShell() {
 			  <span style={styles.userName}>مدير النظام</span>
 			  <span style={styles.userRole}>Administrator</span>
 			</div>
-			<img src="https://ui-avatars.com/api/?name=Admin&background=111827&color=fff" alt="User" style={styles.avatar} />
+			{/* تم تحديث لون خلفية الصورة الرمزية لتطابق الثيم الأخضر */}
+			<img src="https://ui-avatars.com/api/?name=Admin&background=2A5D4E&color=fff" alt="User" style={styles.avatar} />
 		  </div>
 		</header>
 

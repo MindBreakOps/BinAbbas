@@ -29,12 +29,13 @@ import News from './pages/News';
 import TopStudents from './pages/TopStudents';
 import Certificates from './pages/Certificates';
 
+import StudentResults from './pages/StudentResults';
 // صفحات قسم المالية
 import FinancialOverview from './pages/FinancialOverview';
 import FinancialBudget from './pages/FinancialBudget';
 import FinancialDonations from './pages/FinancialDonations';
 import FinancialExpenses from './pages/FinancialExpenses';
-
+import Events from './pages/Events';
 // صفحات الإعدادات
 import SettingsWorkspace from './pages/SettingsWorkspace';
 import SettingsAccounts from './pages/SettingsAccounts';
@@ -64,6 +65,8 @@ export default function App() {
 			  <Route path="/news" element={<News />} />
 				  <Route path="/top-students" element={<TopStudents />} />
 				  <Route path="/certificates" element={<Certificates />} />
+					  <Route path="/events" element={<Events />} />
+					  <Route path="/results" element={<StudentResults />} />
 
 			  <Route path="/financials/overview" element={<FinancialOverview />} />
 			  <Route path="/financials/budget" element={<FinancialBudget />} />

@@ -13,11 +13,7 @@ const getTypeLabel = (type: string) => {
 export default function News() {
   const [news, setNews] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
-  // للتحكم بالبطاقات (أي بطاقة مفتوحة حالياً)
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  
-  // للتحكم بالمنشور المراد طباعته
   const [printingItem, setPrintingItem] = useState<any>(null);
 
   // States for CRUD
@@ -28,7 +24,6 @@ export default function News() {
   const fetchNews = async () => {
 	setIsLoading(true);
 	try {
-	  // جلب البيانات من جدول newspaper بناءً على الأعمدة الصحيحة فقط
 	  const { data, error } = await supabase
 		.from('newspaper')
 		.select('id, type, text, source, date, created_at')
@@ -72,7 +67,7 @@ export default function News() {
   const handleSave = async (e: React.FormEvent) => {
 	e.preventDefault();
 	const payload = {
-	  type: formData.type, // يتم حفظها كـ hadeeth أو feqh
+	  type: formData.type,
 	  text: formData.text,
 	  source: formData.source,
 	  date: formData.date
@@ -99,112 +94,181 @@ export default function News() {
 
   const triggerPrint = (item: any) => {
 	setPrintingItem(item);
-	// ننتظر قليلاً حتى يتم تحديث الـ DOM بالمنشور المختار قبل استدعاء نافذة الطباعة
+	// ننتظر حتى يتم تفعيل الشريحة في الـ DOM ثم نستدعي الطباعة
 	setTimeout(() => {
 	  window.print();
-	}, 150);
+	  // تنظيف المتغير بعد إغلاق نافذة الطباعة
+	  setTimeout(() => setPrintingItem(null), 500);
+	}, 200);
   };
 
-  const styles: { [key: string]: React.CSSProperties } = {
-	header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid var(--border-subtle)' },
-	title: { fontSize: '1.5rem', fontWeight: 800, margin: '0 0 8px 0', color: 'var(--text-primary)' },
-	subtitle: { fontSize: '0.95rem', color: 'var(--text-secondary)', margin: 0 },
-	btnPrimary: { backgroundColor: 'var(--forest-green)', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center' },
-	grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px', alignItems: 'start' },
+  // الألوان الأساسية للثيم الجديد
+  const theme = {
+	primary: '#2A5D4E',
+	primaryLight: '#E0EFDF',
+	cardBg: '#FFFFFF',
+	border: '#E5E7EB',
+	textMain: '#111827',
+	textMuted: '#6B7280',
+	gold: '#B45309'
+  };
+
+  const styles: { [key: string]: React.CSSProperties | any } = {
+	header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', paddingBottom: '24px', borderBottom: `1px solid ${theme.border}` },
+	titleGroup: { display: 'flex', flexDirection: 'column', gap: '6px' },
+	title: { fontSize: '1.8rem', fontWeight: 900, margin: 0, color: theme.primary, letterSpacing: '-0.5px' },
+	subtitle: { fontSize: '0.9rem', color: theme.textMuted, margin: 0, fontWeight: 600 },
 	
-	// ستايل البطاقة المصغرة والقابلة للتوسيع
-	card: { backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '20px', cursor: 'pointer', transition: 'all 0.3s ease', boxShadow: 'var(--shadow-sm)' },
-	cardHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' },
-	typeBadge: { backgroundColor: 'var(--forest-light)', color: 'var(--forest-green)', padding: '4px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 800 },
-	expandIcon: { color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 700 },
+	btnPrimary: { backgroundColor: theme.primary, color: '#fff', border: 'none', padding: '10px 24px', borderRadius: '24px', fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center', boxShadow: '0 4px 12px rgba(42, 93, 78, 0.2)', transition: 'all 0.2s' },
 	
-	cardTextCollapsed: { fontSize: '0.95rem', color: 'var(--text-secondary)', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
-	cardTextExpanded: { fontSize: '1.05rem', lineHeight: 1.8, color: 'var(--text-primary)', margin: '0 0 20px 0', whiteSpace: 'pre-wrap' },
+	grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px', alignItems: 'start' },
 	
-	cardFooter: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-subtle)', paddingTop: '16px', marginTop: '16px', fontSize: '0.85rem', color: 'var(--text-secondary)' },
-	cardActions: { display: 'flex', gap: '12px' },
-	iconBtnEdit: { background: 'none', border: 'none', color: 'var(--forest-green)', cursor: 'pointer', fontWeight: 700, padding: 0 },
-	iconBtnDelete: { background: 'none', border: 'none', color: '#b91c1c', cursor: 'pointer', fontWeight: 700, padding: 0 },
-	iconBtnPrint: { background: 'none', border: 'none', color: '#0369a1', cursor: 'pointer', fontWeight: 700, padding: 0 },
+	card: { backgroundColor: theme.cardBg, border: `1px solid ${theme.border}`, borderRadius: '16px', padding: '24px', cursor: 'pointer', transition: 'all 0.2s ease', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.02)' },
+	cardHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' },
+	typeBadge: { backgroundColor: theme.primaryLight, color: theme.primary, padding: '6px 14px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 900 },
+	expandIcon: { color: theme.textMuted, fontSize: '0.8rem', fontWeight: 800, padding: '4px 8px', borderRadius: '8px', backgroundColor: '#F3F4F6' },
 	
-	// المودال (النماذج)
-	modalOverlay: { position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
-	modalContent: { backgroundColor: '#fff', padding: '24px', borderRadius: '16px', width: '100%', maxWidth: '500px' },
-	inputGroup: { display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' },
-	input: { padding: '10px', borderRadius: '8px', border: '1px solid var(--border-subtle)', fontFamily: 'inherit' },
-	textarea: { padding: '10px', borderRadius: '8px', border: '1px solid var(--border-subtle)', fontFamily: 'inherit', minHeight: '120px', resize: 'vertical' }
+	cardTextCollapsed: { fontSize: '0.95rem', color: theme.textMuted, margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: 600 },
+	cardTextExpanded: { fontSize: '1.1rem', lineHeight: 1.8, color: theme.textMain, margin: '0 0 24px 0', whiteSpace: 'pre-wrap', fontWeight: 700 },
+	
+	cardFooter: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: `1px solid ${theme.border}`, paddingTop: '16px', marginTop: '16px', fontSize: '0.85rem', color: theme.textMuted, fontWeight: 600 },
+	cardActions: { display: 'flex', gap: '8px' },
+	iconBtn: { background: '#F3F4F6', border: 'none', borderRadius: '8px', padding: '6px 12px', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem', transition: 'background 0.2s' },
+	
+	// المودال
+	modalOverlay: { position: 'fixed', inset: 0, backgroundColor: 'rgba(17, 24, 39, 0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
+	modalContent: { backgroundColor: '#fff', padding: '32px', borderRadius: '24px', width: '100%', maxWidth: '500px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' },
+	inputGroup: { display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' },
+	label: { fontWeight: 800, fontSize: '0.9rem', color: theme.primary },
+	input: { padding: '12px 16px', borderRadius: '12px', border: `2px solid ${theme.border}`, fontFamily: 'inherit', fontSize: '0.95rem', outline: 'none', transition: 'border-color 0.2s', fontWeight: 600 },
+	textarea: { padding: '12px 16px', borderRadius: '12px', border: `2px solid ${theme.border}`, fontFamily: 'inherit', fontSize: '0.95rem', minHeight: '140px', resize: 'vertical', outline: 'none', fontWeight: 600 }
   };
 
   return (
 	<div>
-	  {/* 
-		ستايل الطباعة المزخرف (A4 Landscape) 
-		نقوم بإخفاء كل شيء، ونظهر فقط الحاوية التي تحمل الـ ID: single-print-canvas
+	  {/* ستايل الطباعة (A4 Landscape) 
+		تصميم إسلامي فاخر مخصص للطباعة فقط
 	  */}
 	  <style>{`
+		@media screen {
+		  .print-only { display: none !important; }
+		}
 		@media print {
-		  body * { display: none !important; }
-		  #single-print-canvas, #single-print-canvas * { display: block !important; }
+		  @page { size: A4 landscape; margin: 0; }
+		  body * { visibility: hidden; }
 		  
-		  @page {
-			size: A4 landscape;
-			margin: 0;
-		  }
-
-		  #single-print-canvas {
-			position: fixed;
-			top: 0; left: 0;
+		  .print-only, .print-only * { visibility: visible; }
+		  
+		  .print-only {
+			position: absolute;
+			left: 0; top: 0;
 			width: 297mm; height: 210mm;
-			background-color: #fffdf7; /* لون ورق مائل للبيج */
-			padding: 20mm;
+			padding: 12mm;
 			box-sizing: border-box;
 			direction: rtl;
+			background-color: #FCFBF7 !important; /* لون عاجي فاتح جداً */
+			-webkit-print-color-adjust: exact;
+			print-color-adjust: exact;
+			display: flex !important;
 		  }
 
-		  .print-border {
-			position: absolute;
-			top: 15mm; left: 15mm; right: 15mm; bottom: 15mm;
-			border: 8px double #064e3b; /* أخضر إسلامي */
-			outline: 2px solid #b45309; /* ذهبي */
-			outline-offset: -12px;
-			pointer-events: none;
-			z-index: 1;
+		  /* الإطار الخارجي الأخضر */
+		  .print-frame-outer {
+			flex: 1;
+			border: 6px solid ${theme.primary};
+			padding: 4px;
+			box-sizing: border-box;
 		  }
 
-		  .print-content {
-			position: relative;
-			z-index: 2;
+		  /* الإطار الداخلي الذهبي مع الزخرفة */
+		  .print-frame-inner {
+			flex: 1;
+			border: 2px solid ${theme.gold};
 			height: 100%;
 			display: flex;
 			flex-direction: column;
 			align-items: center;
 			justify-content: center;
+			padding: 40px;
+			box-sizing: border-box;
+			position: relative;
+			background: radial-gradient(circle at center, #FFFFFF 40%, #FCFBF7 100%) !important;
+		  }
+
+		  /* زوايا الإطار (تصميم هندسي بسيط) */
+		  .corner-ornament {
+			position: absolute;
+			width: 30px; height: 30px;
+			background-color: ${theme.primary};
+			border: 2px solid ${theme.gold};
+			transform: rotate(45deg);
+		  }
+		  .c-tl { top: -15px; left: -15px; }
+		  .c-tr { top: -15px; right: -15px; }
+		  .c-bl { bottom: -15px; left: -15px; }
+		  .c-br { bottom: -15px; right: -15px; }
+
+		  /* ترويسة الطباعة */
+		  .print-header-brand {
+			position: absolute;
+			top: 30px;
 			text-align: center;
+			width: 100%;
 		  }
-
-		  .print-type {
-			font-size: 28px;
+		  .print-system-name {
+			font-size: 20px;
 			font-weight: 900;
-			color: #b45309;
-			border-bottom: 2px solid #064e3b;
-			padding-bottom: 10px;
-			margin-bottom: 30px;
-			font-family: 'Traditional Arabic', serif;
+			color: ${theme.primary};
+			letter-spacing: 1px;
+			font-family: 'Amiri', 'Traditional Arabic', serif;
+		  }
+		  .print-divider-line {
+			width: 150px;
+			height: 2px;
+			background-color: ${theme.gold};
+			margin: 8px auto 0;
+			position: relative;
+		  }
+		  .print-divider-line::after {
+			content: '';
+			position: absolute;
+			top: -3px; left: calc(50% - 4px);
+			width: 8px; height: 8px;
+			background-color: ${theme.primary};
+			transform: rotate(45deg);
 		  }
 
-		  .print-text {
+		  /* المحتوى النصي */
+		  .print-type-title {
 			font-size: 32px;
-			line-height: 2;
-			color: #111827;
-			font-family: 'Traditional Arabic', serif;
-			max-width: 85%;
+			font-weight: bold;
+			color: ${theme.gold};
+			margin-bottom: 30px;
+			font-family: 'Amiri', 'Traditional Arabic', serif;
+			border-bottom: 1px dashed ${theme.gold};
+			padding-bottom: 10px;
 		  }
 
-		  .print-source {
-			margin-top: 40px;
-			font-size: 22px;
-			color: #064e3b;
+		  .print-main-text {
+			font-size: 38px;
+			line-height: 1.8;
+			color: #111827;
+			text-align: center;
+			max-width: 85%;
+			font-family: 'Amiri', 'Traditional Arabic', serif;
 			font-weight: bold;
+		  }
+
+		  .print-footer-details {
+			position: absolute;
+			bottom: 40px;
+			font-size: 24px;
+			color: ${theme.primary};
+			font-weight: bold;
+			font-family: 'Amiri', 'Traditional Arabic', serif;
+			display: flex;
+			gap: 20px;
+			align-items: center;
 		  }
 		}
 	  `}</style>
@@ -212,16 +276,21 @@ export default function News() {
 	  {/* الواجهة الرئيسية (تختفي وقت الطباعة) */}
 	  <div className="no-print">
 		<div style={styles.header}>
-		  <div>
-			<h2 style={styles.title}>النشرة وحائط الإعلانات</h2>
-			<p style={styles.subtitle}>انقر على أي بطاقة لعرض محتواها أو طباعتها</p>
+		  <div style={styles.titleGroup}>
+			<h2 style={styles.title}>النشرة والإعلانات</h2>
+			<p style={styles.subtitle}>إدارة الحائط الإعلاني والأحاديث والفوائد الفقهية</p>
 		  </div>
-		  <button style={styles.btnPrimary} onClick={openCreateModal}>
-			<Icon name="plus" size={16} /> إضافة منشور
+		  <button 
+			style={styles.btnPrimary} 
+			onClick={openCreateModal}
+			onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+			onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+		  >
+			<Icon name="plus" size={18} /> إضافة منشور
 		  </button>
 		</div>
 
-		{isLoading ? <p style={{ textAlign: 'center', padding: '40px' }}>جاري التحميل...</p> : (
+		{isLoading ? <p style={{ textAlign: 'center', padding: '40px', fontWeight: 800, color: theme.textMuted }}>جاري تحميل المنشورات...</p> : (
 		  <div style={styles.grid}>
 			{news.map(item => {
 			  const isExpanded = expandedId === item.id;
@@ -229,38 +298,41 @@ export default function News() {
 			  return (
 				<div 
 				  key={item.id} 
-				  style={{ ...styles.card, borderColor: isExpanded ? 'var(--forest-green)' : 'var(--border-subtle)' }}
-				  onClick={() => setExpandedId(isExpanded ? null : item.id)} // التبديل بين الطي والتوسيع
+				  style={{ 
+					...styles.card, 
+					borderColor: isExpanded ? theme.primary : theme.border,
+					boxShadow: isExpanded ? '0 10px 15px -3px rgba(42, 93, 78, 0.1)' : styles.card.boxShadow
+				  }}
+				  onClick={() => setExpandedId(isExpanded ? null : item.id)}
 				>
 				  <div style={styles.cardHeader}>
 					<span style={styles.typeBadge}>{getTypeLabel(item.type)}</span>
-					<span style={styles.expandIcon}>{isExpanded ? '▲ طي' : '▼ توسيع'}</span>
+					<span style={{...styles.expandIcon, backgroundColor: isExpanded ? theme.primaryLight : '#F3F4F6', color: isExpanded ? theme.primary : theme.textMuted}}>
+					  {isExpanded ? 'طي ▲' : 'توسيع ▼'}
+					</span>
 				  </div>
 				  
-				  {/* المحتوى المطوي مقابل المحتوى الموسع */}
 				  {isExpanded ? (
 					<p style={styles.cardTextExpanded}>{item.text}</p>
 				  ) : (
 					<p style={styles.cardTextCollapsed}>{item.text}</p>
 				  )}
 
-				  {/* تظهر الأزرار والتفاصيل فقط إذا كانت البطاقة موسعة */}
 				  {isExpanded && (
 					<div style={styles.cardFooter} onClick={(e) => e.stopPropagation()}> 
-					  {/* إيقاف الانتشار (Propagation) حتى لا تنغلق البطاقة عند النقر على الأزرار */}
-					  <span>{item.source} {item.source && item.date && '-'} {item.date}</span>
+					  <span>{item.source} {item.source && item.date && ' | '} {item.date}</span>
 					  
 					  <div style={styles.cardActions}>
-						<button style={styles.iconBtnPrint} onClick={() => triggerPrint(item)}>طباعة</button>
-						<button style={styles.iconBtnEdit} onClick={() => openEditModal(item)}>تعديل</button>
-						<button style={styles.iconBtnDelete} onClick={() => handleDelete(item.id)}>حذف</button>
+						<button style={{...styles.iconBtn, color: '#0369a1'}} onClick={() => triggerPrint(item)}>طباعة</button>
+						<button style={{...styles.iconBtn, color: theme.primary}} onClick={() => openEditModal(item)}>تعديل</button>
+						<button style={{...styles.iconBtn, color: '#b91c1c'}} onClick={() => handleDelete(item.id)}>حذف</button>
 					  </div>
 					</div>
 				  )}
 				</div>
 			  );
 			})}
-			{news.length === 0 && <p style={{ gridColumn: '1 / -1', textAlign: 'center' }}>لا توجد منشورات حالياً.</p>}
+			{news.length === 0 && <p style={{ gridColumn: '1 / -1', textAlign: 'center', fontWeight: 800, color: theme.textMuted }}>لا توجد منشورات حالياً.</p>}
 		  </div>
 		)}
 	  </div>
@@ -269,11 +341,17 @@ export default function News() {
 	  {isModalOpen && (
 		<div className="no-print" style={styles.modalOverlay}>
 		  <div style={styles.modalContent}>
-			<h3 style={{ margin: '0 0 20px 0', fontWeight: 800 }}>{editingId ? 'تعديل المنشور' : 'إضافة منشور جديد'}</h3>
+			<h3 style={{ margin: '0 0 24px 0', fontWeight: 900, color: theme.primary, fontSize: '1.4rem' }}>
+			  {editingId ? 'تعديل المنشور' : 'إضافة منشور جديد'}
+			</h3>
 			<form onSubmit={handleSave}>
 			  <div style={styles.inputGroup}>
-				<label style={{ fontWeight: 700, fontSize: '0.9rem' }}>التصنيف (النوع)</label>
-				<select style={styles.input} value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
+				<label style={styles.label}>التصنيف (النوع)</label>
+				<select 
+				  style={{...styles.input, cursor: 'pointer'}} 
+				  value={formData.type} 
+				  onChange={e => setFormData({...formData, type: e.target.value})}
+				>
 				  <option value="hadeeth">حديث شريف</option>
 				  <option value="feqh">فقه</option>
 				  <option value="announcement">إعلان إداري</option>
@@ -281,46 +359,76 @@ export default function News() {
 				</select>
 			  </div>
 			  <div style={styles.inputGroup}>
-				<label style={{ fontWeight: 700, fontSize: '0.9rem' }}>النص (المحتوى)</label>
-				<textarea required style={styles.textarea} value={formData.text} onChange={e => setFormData({...formData, text: e.target.value})} placeholder="اكتب نص الحديث أو الإعلان هنا..."></textarea>
+				<label style={styles.label}>النص (المحتوى)</label>
+				<textarea 
+				  required 
+				  style={styles.textarea} 
+				  value={formData.text} 
+				  onChange={e => setFormData({...formData, text: e.target.value})} 
+				  placeholder="اكتب نص الحديث أو الإعلان هنا..."
+				/>
 			  </div>
 			  <div style={{ display: 'flex', gap: '16px' }}>
 				<div style={{ ...styles.inputGroup, flex: 1 }}>
-				  <label style={{ fontWeight: 700, fontSize: '0.9rem' }}>المصدر أو الراوي</label>
+				  <label style={styles.label}>المصدر أو الراوي</label>
 				  <input style={styles.input} value={formData.source} onChange={e => setFormData({...formData, source: e.target.value})} placeholder="مثال: رواه البخاري" />
 				</div>
 				<div style={{ ...styles.inputGroup, flex: 1 }}>
-				  <label style={{ fontWeight: 700, fontSize: '0.9rem' }}>التاريخ</label>
+				  <label style={styles.label}>التاريخ</label>
 				  <input style={styles.input} value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} />
 				</div>
 			  </div>
 			  
-			  <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-				<button type="submit" style={{ ...styles.btnPrimary, flex: 1, justifyContent: 'center' }}>حفظ المنشور</button>
-				<button type="button" onClick={() => setIsModalOpen(false)} style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--border-subtle)', background: 'transparent', cursor: 'pointer' }}>إلغاء</button>
+			  <div style={{ display: 'flex', gap: '12px', marginTop: '32px' }}>
+				<button type="submit" style={{ ...styles.btnPrimary, flex: 1, justifyContent: 'center', borderRadius: '12px' }}>
+				  حفظ المنشور
+				</button>
+				<button 
+				  type="button" 
+				  onClick={() => setIsModalOpen(false)} 
+				  style={{ padding: '12px 24px', borderRadius: '12px', border: `2px solid ${theme.border}`, background: 'transparent', cursor: 'pointer', fontWeight: 800, color: theme.textMuted }}
+				>
+				  إلغاء
+				</button>
 			  </div>
 			</form>
 		  </div>
 		</div>
 	  )}
 
-	  {/* 
-		=========================================================
-		شريحة الطباعة الفردية (تتغذى من الـ state `printingItem`)
-		تظهر فقط في صفحة الطباعة للمتصفح 
+	  {/* =========================================================
+		شريحة الطباعة الفردية (Landscape A4 + Islamic Theme)
 		=========================================================
 	  */}
 	  {printingItem && (
-		<div id="single-print-canvas">
-		  <div className="print-border"></div>
-		  <div className="print-content">
-			<div className="print-type">{getTypeLabel(printingItem.type)}</div>
-			<div className="print-text">{printingItem.text}</div>
-			{(printingItem.source || printingItem.date) && (
-			  <div className="print-source">
-				{printingItem.source} {printingItem.source && printingItem.date ? ' | ' : ''} {printingItem.date}
+		<div className="print-only">
+		  <div className="print-frame-outer">
+			<div className="print-frame-inner">
+			  {/* الزوايا الهندسية */}
+			  <div className="corner-ornament c-tl"></div>
+			  <div className="corner-ornament c-tr"></div>
+			  <div className="corner-ornament c-bl"></div>
+			  <div className="corner-ornament c-br"></div>
+
+			  {/* الترويسة العليا */}
+			  <div className="print-header-brand">
+				<div className="print-system-name">نظام ابن عباس - إدارة الشؤون الأكاديمية</div>
+				<div className="print-divider-line"></div>
 			  </div>
-			)}
+
+			  {/* المحتوى */}
+			  <div className="print-type-title">{getTypeLabel(printingItem.type)}</div>
+			  <div className="print-main-text">{printingItem.text}</div>
+
+			  {/* التذييل */}
+			  {(printingItem.source || printingItem.date) && (
+				<div className="print-footer-details">
+				  {printingItem.source && <span>{printingItem.source}</span>}
+				  {printingItem.source && printingItem.date && <span style={{color: theme.gold}}>|</span>}
+				  {printingItem.date && <span>{printingItem.date}</span>}
+				</div>
+			  )}
+			</div>
 		  </div>
 		</div>
 	  )}
