@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Icon } from '../components/ui/Icons';
+import { toPng } from 'html-to-image';// المكتبة المسؤولة عن تحويل التصميم لصورة
 
 // دالة لترجمة النوع من الإنجليزية (قاعدة البيانات) إلى العربية (الواجهة)
 const getTypeLabel = (type: string) => {
@@ -14,7 +15,10 @@ export default function News() {
   const [news, setNews] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  
+  // للتحكم بالمنشور المراد تصديره كصورة
   const [printingItem, setPrintingItem] = useState<any>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   // States for CRUD
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -92,16 +96,35 @@ export default function News() {
 	fetchNews();
   };
 
-  const triggerPrint = (item: any) => {
-	setPrintingItem(item);
-	// ننتظر حتى يتم تفعيل الشريحة في الـ DOM ثم نستدعي الطباعة
-	setTimeout(() => {
-	  window.print();
-	  // تنظيف المتغير بعد إغلاق نافذة الطباعة
-	  setTimeout(() => setPrintingItem(null), 500);
-	}, 200);
-  };
-
+  // دالة تحويل البطاقة إلى صورة عالية الدق// دالة تحويل البطاقة إلى صورة عالية الدقة وبدون تكسير في اللغة العربية
+	const exportAsImage = (item: any) => {
+	  setIsExporting(true);
+	  setPrintingItem(item);
+	  
+	  setTimeout(async () => {
+		const element = document.getElementById('image-export-node');
+		if (element) {
+		  try {
+			const dataUrl = await toPng(element, {
+			  pixelRatio: 2, 
+			  backgroundColor: '#FCFBF7',
+			  cacheBust: true,
+			});
+			
+			const link = document.createElement('a');
+			link.download = `منشور-${getTypeLabel(item.type)}.png`;
+			link.href = dataUrl;
+			link.click();
+		  } catch (error) {
+			console.error("Error generating image: ", error);
+			alert("حدث خطأ أثناء إنشاء الصورة.");
+		  } finally {
+			setIsExporting(false);
+			setPrintingItem(null);
+		  }
+		}
+	  }, 300);
+	};
   // الألوان الأساسية للثيم الجديد
   const theme = {
 	primary: '#2A5D4E',
@@ -145,146 +168,18 @@ export default function News() {
   };
 
   return (
-	<div>
-	  {/* ستايل الطباعة (A4 Landscape) 
-		تصميم إسلامي فاخر مخصص للطباعة فقط
-	  */}
-	  <style>{`
-		@media screen {
-		  .print-only { display: none !important; }
-		}
-		@media print {
-		  @page { size: A4 landscape; margin: 0; }
-		  body * { visibility: hidden; }
-		  
-		  .print-only, .print-only * { visibility: visible; }
-		  
-		  .print-only {
-			position: absolute;
-			left: 0; top: 0;
-			width: 297mm; height: 210mm;
-			padding: 12mm;
-			box-sizing: border-box;
-			direction: rtl;
-			background-color: #FCFBF7 !important; /* لون عاجي فاتح جداً */
-			-webkit-print-color-adjust: exact;
-			print-color-adjust: exact;
-			display: flex !important;
-		  }
-
-		  /* الإطار الخارجي الأخضر */
-		  .print-frame-outer {
-			flex: 1;
-			border: 6px solid ${theme.primary};
-			padding: 4px;
-			box-sizing: border-box;
-		  }
-
-		  /* الإطار الداخلي الذهبي مع الزخرفة */
-		  .print-frame-inner {
-			flex: 1;
-			border: 2px solid ${theme.gold};
-			height: 100%;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-			padding: 40px;
-			box-sizing: border-box;
-			position: relative;
-			background: radial-gradient(circle at center, #FFFFFF 40%, #FCFBF7 100%) !important;
-		  }
-
-		  /* زوايا الإطار (تصميم هندسي بسيط) */
-		  .corner-ornament {
-			position: absolute;
-			width: 30px; height: 30px;
-			background-color: ${theme.primary};
-			border: 2px solid ${theme.gold};
-			transform: rotate(45deg);
-		  }
-		  .c-tl { top: -15px; left: -15px; }
-		  .c-tr { top: -15px; right: -15px; }
-		  .c-bl { bottom: -15px; left: -15px; }
-		  .c-br { bottom: -15px; right: -15px; }
-
-		  /* ترويسة الطباعة */
-		  .print-header-brand {
-			position: absolute;
-			top: 30px;
-			text-align: center;
-			width: 100%;
-		  }
-		  .print-system-name {
-			font-size: 20px;
-			font-weight: 900;
-			color: ${theme.primary};
-			letter-spacing: 1px;
-			font-family: 'Amiri', 'Traditional Arabic', serif;
-		  }
-		  .print-divider-line {
-			width: 150px;
-			height: 2px;
-			background-color: ${theme.gold};
-			margin: 8px auto 0;
-			position: relative;
-		  }
-		  .print-divider-line::after {
-			content: '';
-			position: absolute;
-			top: -3px; left: calc(50% - 4px);
-			width: 8px; height: 8px;
-			background-color: ${theme.primary};
-			transform: rotate(45deg);
-		  }
-
-		  /* المحتوى النصي */
-		  .print-type-title {
-			font-size: 32px;
-			font-weight: bold;
-			color: ${theme.gold};
-			margin-bottom: 30px;
-			font-family: 'Amiri', 'Traditional Arabic', serif;
-			border-bottom: 1px dashed ${theme.gold};
-			padding-bottom: 10px;
-		  }
-
-		  .print-main-text {
-			font-size: 38px;
-			line-height: 1.8;
-			color: #111827;
-			text-align: center;
-			max-width: 85%;
-			font-family: 'Amiri', 'Traditional Arabic', serif;
-			font-weight: bold;
-		  }
-
-		  .print-footer-details {
-			position: absolute;
-			bottom: 40px;
-			font-size: 24px;
-			color: ${theme.primary};
-			font-weight: bold;
-			font-family: 'Amiri', 'Traditional Arabic', serif;
-			display: flex;
-			gap: 20px;
-			align-items: center;
-		  }
-		}
-	  `}</style>
-
-	  {/* الواجهة الرئيسية (تختفي وقت الطباعة) */}
-	  <div className="no-print">
+	<div style={{ position: 'relative' }}>
+	  {/* الواجهة الرئيسية */}
+	  <div>
 		<div style={styles.header}>
 		  <div style={styles.titleGroup}>
 			<h2 style={styles.title}>النشرة والإعلانات</h2>
 			<p style={styles.subtitle}>إدارة الحائط الإعلاني والأحاديث والفوائد الفقهية</p>
 		  </div>
 		  <button 
-			style={styles.btnPrimary} 
+			style={{...styles.btnPrimary, opacity: isExporting ? 0.7 : 1, cursor: isExporting ? 'not-allowed' : 'pointer'}} 
 			onClick={openCreateModal}
-			onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-			onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+			disabled={isExporting}
 		  >
 			<Icon name="plus" size={18} /> إضافة منشور
 		  </button>
@@ -323,7 +218,13 @@ export default function News() {
 					  <span>{item.source} {item.source && item.date && ' | '} {item.date}</span>
 					  
 					  <div style={styles.cardActions}>
-						<button style={{...styles.iconBtn, color: '#0369a1'}} onClick={() => triggerPrint(item)}>طباعة</button>
+						<button 
+						  style={{...styles.iconBtn, color: '#0369a1', opacity: isExporting ? 0.5 : 1}} 
+						  onClick={() => exportAsImage(item)}
+						  disabled={isExporting}
+						>
+						  {isExporting && printingItem?.id === item.id ? 'جاري التحميل...' : 'حفظ كصورة'}
+						</button>
 						<button style={{...styles.iconBtn, color: theme.primary}} onClick={() => openEditModal(item)}>تعديل</button>
 						<button style={{...styles.iconBtn, color: '#b91c1c'}} onClick={() => handleDelete(item.id)}>حذف</button>
 					  </div>
@@ -339,7 +240,7 @@ export default function News() {
 
 	  {/* نافذة الإضافة والتعديل */}
 	  {isModalOpen && (
-		<div className="no-print" style={styles.modalOverlay}>
+		<div style={styles.modalOverlay}>
 		  <div style={styles.modalContent}>
 			<h3 style={{ margin: '0 0 24px 0', fontWeight: 900, color: theme.primary, fontSize: '1.4rem' }}>
 			  {editingId ? 'تعديل المنشور' : 'إضافة منشور جديد'}
@@ -397,41 +298,72 @@ export default function News() {
 	  )}
 
 	  {/* =========================================================
-		شريحة الطباعة الفردية (Landscape A4 + Islamic Theme)
+		شريحة التصدير للصورة (مخفية عن الشاشة ولكن يتم رسمها للتصدير)
+		بأبعاد A4 Landscape وحواف إسلامية فاخرة
 		=========================================================
 	  */}
-	  {printingItem && (
-		<div className="print-only">
-		  <div className="print-frame-outer">
-			<div className="print-frame-inner">
-			  {/* الزوايا الهندسية */}
-			  <div className="corner-ornament c-tl"></div>
-			  <div className="corner-ornament c-tr"></div>
-			  <div className="corner-ornament c-bl"></div>
-			  <div className="corner-ornament c-br"></div>
+	  <div style={{ position: 'absolute', top: '-9999px', left: '-9999px', overflow: 'hidden' }}>
+		{printingItem && (
+		  <div id="image-export-node" style={{
+			width: '1122px', // عرض A4 بالبيكسل
+			height: '794px', // طول A4 بالبيكسل
+			backgroundColor: '#FCFBF7',
+			padding: '45px',
+			boxSizing: 'border-box',
+			direction: 'rtl',
+			display: 'flex'
+		  }}>
+			<div style={{ flex: 1, border: `8px solid ${theme.primary}`, padding: '6px', boxSizing: 'border-box' }}>
+			  <div style={{
+				flex: 1, 
+				border: `3px solid ${theme.gold}`, 
+				height: '100%',
+				display: 'flex', 
+				flexDirection: 'column', 
+				alignItems: 'center',
+				justifyContent: 'center', 
+				padding: '40px', 
+				position: 'relative',
+				background: 'radial-gradient(circle at center, #FFFFFF 40%, #FCFBF7 100%)'
+			  }}>
+				
+				{/* الزوايا الهندسية الإسلامية */}
+				<div style={{ position: 'absolute', width: '40px', height: '40px', backgroundColor: theme.primary, border: `2px solid ${theme.gold}`, transform: 'rotate(45deg)', top: '-20px', left: '-20px' }}></div>
+				<div style={{ position: 'absolute', width: '40px', height: '40px', backgroundColor: theme.primary, border: `2px solid ${theme.gold}`, transform: 'rotate(45deg)', top: '-20px', right: '-20px' }}></div>
+				<div style={{ position: 'absolute', width: '40px', height: '40px', backgroundColor: theme.primary, border: `2px solid ${theme.gold}`, transform: 'rotate(45deg)', bottom: '-20px', left: '-20px' }}></div>
+				<div style={{ position: 'absolute', width: '40px', height: '40px', backgroundColor: theme.primary, border: `2px solid ${theme.gold}`, transform: 'rotate(45deg)', bottom: '-20px', right: '-20px' }}></div>
 
-			  {/* الترويسة العليا */}
-			  <div className="print-header-brand">
-				<div className="print-system-name">نظام ابن عباس - إدارة الشؤون الأكاديمية</div>
-				<div className="print-divider-line"></div>
-			  </div>
-
-			  {/* المحتوى */}
-			  <div className="print-type-title">{getTypeLabel(printingItem.type)}</div>
-			  <div className="print-main-text">{printingItem.text}</div>
-
-			  {/* التذييل */}
-			  {(printingItem.source || printingItem.date) && (
-				<div className="print-footer-details">
-				  {printingItem.source && <span>{printingItem.source}</span>}
-				  {printingItem.source && printingItem.date && <span style={{color: theme.gold}}>|</span>}
-				  {printingItem.date && <span>{printingItem.date}</span>}
+				{/* الترويسة العليا */}
+				<div style={{ position: 'absolute', top: '40px', textAlign: 'center', width: '100%' }}>
+				  <div style={{ fontSize: '24px', fontWeight: 900, color: theme.primary, letterSpacing: '1px', fontFamily: '"Traditional Arabic", serif' }}>
+					نظام ابن عباس - إدارة الشؤون الأكاديمية
+				  </div>
+				  <div style={{ width: '180px', height: '2px', backgroundColor: theme.gold, margin: '12px auto 0', position: 'relative' }}>
+					<div style={{ position: 'absolute', top: '-4px', left: 'calc(50% - 5px)', width: '10px', height: '10px', backgroundColor: theme.primary, transform: 'rotate(45deg)' }}></div>
+				  </div>
 				</div>
-			  )}
+
+				{/* المحتوى */}
+				<div style={{ fontSize: '36px', fontWeight: 'bold', color: theme.gold, marginBottom: '40px', fontFamily: '"Traditional Arabic", serif', borderBottom: `2px dashed ${theme.gold}`, paddingBottom: '16px' }}>
+				  {getTypeLabel(printingItem.type)}
+				</div>
+				<div style={{ fontSize: '42px', lineHeight: 1.8, color: '#111827', textAlign: 'center', maxWidth: '85%', fontFamily: '"Traditional Arabic", serif', fontWeight: 'bold' }}>
+				  {printingItem.text}
+				</div>
+
+				{/* التذييل */}
+				{(printingItem.source || printingItem.date) && (
+				  <div style={{ position: 'absolute', bottom: '50px', fontSize: '28px', color: theme.primary, fontWeight: 'bold', fontFamily: '"Traditional Arabic", serif', display: 'flex', gap: '20px', alignItems: 'center' }}>
+					{printingItem.source && <span>{printingItem.source}</span>}
+					{printingItem.source && printingItem.date && <span style={{color: theme.gold}}>|</span>}
+					{printingItem.date && <span>{printingItem.date}</span>}
+				  </div>
+				)}
+			  </div>
 			</div>
 		  </div>
-		</div>
-	  )}
+		)}
+	  </div>
 
 	</div>
   );
