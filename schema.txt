@@ -121,14 +121,3 @@ create table public.teacher_revisions (
   constraint teacher_revisions_pkey primary key (id)
 ) TABLESPACE pg_default;
 
-create table public.teacher_revisions (
-  id uuid not null default extensions.uuid_generate_v4 (),
-  date date null default CURRENT_DATE,
-  reciter_name text not null,
-  listener_name text not null,
-  surah text null,
-  from_verse text null,
-  to_verse text null,
-  grade integer null,
-  constraint teacher_revisions_pkey primary key (id)
-) TABLESPACE pg_default;
