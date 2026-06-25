@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Icon } from '../components/ui/Icons';
-import { toPng } from 'html-to-image';// المكتبة المسؤولة عن تحويل التصميم لصورة
+import { toPng } from 'html-to-image';
 
 // دالة لترجمة النوع من الإنجليزية (قاعدة البيانات) إلى العربية (الواجهة)
 const getTypeLabel = (type: string) => {
@@ -96,36 +96,116 @@ export default function News() {
 	fetchNews();
   };
 
-  // دالة تحويل البطاقة إلى صورة عالية الدق// دالة تحويل البطاقة إلى صورة عالية الدقة وبدون تكسير في اللغة العربية
-	const exportAsImage = (item: any) => {
-	  setIsExporting(true);
-	  setPrintingItem(item);
+  // دالة الحفظ كصورة باستخدام آلية النظام القديم لمنع القص ولحل مشكلة الصورة البيضاء
+  const exportAsImage = (item: any) => {
+	setIsExporting(true);
+	setPrintingItem(item);
+
+	// 1. بناء حاوية وهمية مفتوحة الارتفاع
+	const container = document.createElement('div');
+	// لضمان عدم ظهور الصورة البيضاء، يجب أن يكون العنصر داخل الـ Document 
+	// ولكن نضعه خلف الواجهة الأساسية (zIndex) بدلاً من إبعاده كلياً
+	container.style.position = 'fixed';
+	container.style.top = '0';
+	container.style.left = '0';
+	container.style.width = '1123px';
+	container.style.minHeight = '794px';
+	container.style.backgroundColor = '#f0f4f0';
+	container.style.zIndex = '-9999';
+	container.style.direction = 'rtl';
+	container.style.padding = '35px 45px';
+	container.style.boxSizing = 'border-box';
+
+	const logoUrl = 'https://raw.githubusercontent.com/MindBreakOps/OpSystem/main/aba.png';
+	const cleanTxt = item.text.replace(/\n/g, '<br/>');
+	const newsTypeTitle = item.type === 'feqh' ? "(( درس فقهي ))" : "(( حديث شريف ))";
+
+	// 2. حقن التصميم القديم المطلوب للنشرة
+	container.innerHTML = `
+	  <div style="display: flex; flex-direction: column; min-height: 724px; height: 100%;">
+		<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px;">
+		  <div style="text-align: center; width: 140px;">
+			<img src="${logoUrl}" crossorigin="anonymous" style="width: 75px; height: 75px; border-radius: 50%; object-fit: cover; border: 2px solid #1e7a50;">
+			<div style="font-family: 'Tajawal', sans-serif; font-size: 0.65rem; color: #166040; margin-top: 6px; font-weight: 900;">مركز عبدالله بن عباس<br>لتحفيظ القرآن الكريم</div>
+			<div style="font-family: 'Tajawal', sans-serif; font-size: 0.5rem; color: #9a7230; margin-top: 2px;">حي النسيم / الحاج يوسف</div>
+		  </div>
+
+		  <div style="text-align: center; flex: 1; padding-top: 5px;">
+			<div style="font-family: 'Amiri', serif; font-size: 2.2rem; color: #111; font-weight: bold; margin-bottom: 8px;">بسم الله الرحمن الرحيم</div>
+			<div style="font-family: 'Tajawal', sans-serif; font-size: 1.8rem; color: #1e7a50; font-weight: 900; margin-bottom: 12px;">النشرة الأسبوعية</div>
+			<div style="font-family: 'Tajawal', sans-serif; font-size: 1.6rem; color: #9a7230; font-weight: 700;">${newsTypeTitle}</div>
+		  </div>
+
+		  <div style="text-align: center; width: 140px;">
+			<img src="${logoUrl}" crossorigin="anonymous" style="width: 75px; height: 75px; border-radius: 50%; object-fit: cover; border: 2px solid #1e7a50;">
+			<div style="font-family: 'Tajawal', sans-serif; font-size: 0.65rem; color: #166040; margin-top: 6px; font-weight: 900;">مركز عبدالله بن عباس<br>لتحفيظ القرآن الكريم</div>
+			<div style="font-family: 'Tajawal', sans-serif; font-size: 0.5rem; color: #9a7230; margin-top: 2px;">حي النسيم / الحاج يوسف</div>
+		  </div>
+		</div>
+
+		<div style="position: relative; background: #ffffff; border: 3px solid #1e7a50; box-shadow: 0 10px 25px rgba(0,0,0,0.06); padding: 50px 60px; box-sizing: border-box; flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
+		  <div style="position: absolute; bottom: -3px; left: -3px; width: 75px; height: 75px; background: #f0f4f0;"></div>
+		  <div style="position: absolute; bottom: -3px; left: -3px; width: 0; height: 0; border-style: solid; border-width: 75px 75px 0 0; border-color: #d1dcd4 transparent transparent transparent; box-shadow: 3px -3px 6px rgba(0,0,0,0.1);"></div>
+
+		  <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.05; pointer-events: none;">
+			<img src="${logoUrl}" crossorigin="anonymous" style="width: 350px; height: 350px; border-radius: 50%; object-fit: cover; filter: contrast(120%);">
+		  </div>
+
+		  <div style="position: relative; z-index: 1;">
+			<div style="font-family: 'Amiri', serif; font-size: 2.1rem; line-height: 2.2; color: #111a14; text-align: justify; direction: rtl;">
+			  ${cleanTxt}
+			</div>
+			${item.source ? `<div style="font-family: 'Tajawal', sans-serif; font-size: 1.5rem; color: #9a7230; font-weight: 700; margin-top: 40px; text-align: left;">المصدر: ${item.source}</div>` : ''}
+		  </div>
+		</div>
+	  </div>
+	`;
+
+	document.body.appendChild(container);
+
+	// 3. الانتظار ليقوم المتصفح بتحميل الشعار وحساب أبعاد النص بدقة
+	setTimeout(() => {
+	  // إجبار المتصفح على تطبيق التنسيقات وتحديث الطول
+	  void container.offsetHeight; 
+	  const fullHeight = container.scrollHeight;
 	  
-	  setTimeout(async () => {
-		const element = document.getElementById('image-export-node');
-		if (element) {
-		  try {
-			const dataUrl = await toPng(element, {
-			  pixelRatio: 2, 
-			  backgroundColor: '#FCFBF7',
-			  cacheBust: true,
-			});
-			
-			const link = document.createElement('a');
-			link.download = `منشور-${getTypeLabel(item.type)}.png`;
-			link.href = dataUrl;
-			link.click();
-		  } catch (error) {
-			console.error("Error generating image: ", error);
-			alert("حدث خطأ أثناء إنشاء الصورة.");
-		  } finally {
-			setIsExporting(false);
-			setPrintingItem(null);
+	  const config = {
+		pixelRatio: 2, 
+		backgroundColor: '#f0f4f0',
+		width: 1123,
+		height: fullHeight,
+		style: { margin: '0', transform: 'none' },
+		cacheBust: true, // مهم جداً لمنع مشاكل الصور البيضاء مع الروابط الخارجية (CORS)
+	  };
+
+	  // الحل السحري لمكتبة html-to-image لتفادي الصورة البيضاء: الاستدعاء المزدوج
+	  toPng(container, config)
+		.then(() => {
+		  // المرة الثانية تقوم بالالتقاط الفعلي بعد أن يتم تجهيز الـ SVG
+		  return toPng(container, config);
+		})
+		.then(canvasUrl => {
+		  const link = document.createElement('a');
+		  const dateStr = item.date || new Date().toISOString().split('T')[0];
+		  link.download = `النشرة_الأسبوعية_${dateStr}.png`;
+		  link.href = canvasUrl;
+		  link.click();
+		})
+		.catch(err => {
+		  console.error('Error rendering image:', err);
+		  alert('حدث خطأ أثناء استخراج الصورة.');
+		})
+		.finally(() => {
+		  if (document.body.contains(container)) {
+			document.body.removeChild(container);
 		  }
-		}
-	  }, 300);
-	};
-  // الألوان الأساسية للثيم الجديد
+		  setIsExporting(false);
+		  setPrintingItem(null);
+		});
+	}, 1500); // زيادة وقت الانتظار قليلاً لضمان تحميل خطوط Amiri و Tajawal بالكامل
+  };
+
+  // الألوان الأساسية للواجهة المرئية
   const theme = {
 	primary: '#2A5D4E',
 	primaryLight: '#E0EFDF',
@@ -158,7 +238,6 @@ export default function News() {
 	cardActions: { display: 'flex', gap: '8px' },
 	iconBtn: { background: '#F3F4F6', border: 'none', borderRadius: '8px', padding: '6px 12px', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem', transition: 'background 0.2s' },
 	
-	// المودال
 	modalOverlay: { position: 'fixed', inset: 0, backgroundColor: 'rgba(17, 24, 39, 0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
 	modalContent: { backgroundColor: '#fff', padding: '32px', borderRadius: '24px', width: '100%', maxWidth: '500px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' },
 	inputGroup: { display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' },
@@ -169,7 +248,6 @@ export default function News() {
 
   return (
 	<div style={{ position: 'relative' }}>
-	  {/* الواجهة الرئيسية */}
 	  <div>
 		<div style={styles.header}>
 		  <div style={styles.titleGroup}>
@@ -238,7 +316,6 @@ export default function News() {
 		)}
 	  </div>
 
-	  {/* نافذة الإضافة والتعديل */}
 	  {isModalOpen && (
 		<div style={styles.modalOverlay}>
 		  <div style={styles.modalContent}>
@@ -276,7 +353,7 @@ export default function News() {
 				</div>
 				<div style={{ ...styles.inputGroup, flex: 1 }}>
 				  <label style={styles.label}>التاريخ</label>
-				  <input style={styles.input} value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} />
+				  <input type="date" style={styles.input} value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} />
 				</div>
 			  </div>
 			  
@@ -296,75 +373,6 @@ export default function News() {
 		  </div>
 		</div>
 	  )}
-
-	  {/* =========================================================
-		شريحة التصدير للصورة (مخفية عن الشاشة ولكن يتم رسمها للتصدير)
-		بأبعاد A4 Landscape وحواف إسلامية فاخرة
-		=========================================================
-	  */}
-	  <div style={{ position: 'absolute', top: '-9999px', left: '-9999px', overflow: 'hidden' }}>
-		{printingItem && (
-		  <div id="image-export-node" style={{
-			width: '1122px', // عرض A4 بالبيكسل
-			height: '794px', // طول A4 بالبيكسل
-			backgroundColor: '#FCFBF7',
-			padding: '45px',
-			boxSizing: 'border-box',
-			direction: 'rtl',
-			display: 'flex'
-		  }}>
-			<div style={{ flex: 1, border: `8px solid ${theme.primary}`, padding: '6px', boxSizing: 'border-box' }}>
-			  <div style={{
-				flex: 1, 
-				border: `3px solid ${theme.gold}`, 
-				height: '100%',
-				display: 'flex', 
-				flexDirection: 'column', 
-				alignItems: 'center',
-				justifyContent: 'center', 
-				padding: '40px', 
-				position: 'relative',
-				background: 'radial-gradient(circle at center, #FFFFFF 40%, #FCFBF7 100%)'
-			  }}>
-				
-				{/* الزوايا الهندسية الإسلامية */}
-				<div style={{ position: 'absolute', width: '40px', height: '40px', backgroundColor: theme.primary, border: `2px solid ${theme.gold}`, transform: 'rotate(45deg)', top: '-20px', left: '-20px' }}></div>
-				<div style={{ position: 'absolute', width: '40px', height: '40px', backgroundColor: theme.primary, border: `2px solid ${theme.gold}`, transform: 'rotate(45deg)', top: '-20px', right: '-20px' }}></div>
-				<div style={{ position: 'absolute', width: '40px', height: '40px', backgroundColor: theme.primary, border: `2px solid ${theme.gold}`, transform: 'rotate(45deg)', bottom: '-20px', left: '-20px' }}></div>
-				<div style={{ position: 'absolute', width: '40px', height: '40px', backgroundColor: theme.primary, border: `2px solid ${theme.gold}`, transform: 'rotate(45deg)', bottom: '-20px', right: '-20px' }}></div>
-
-				{/* الترويسة العليا */}
-				<div style={{ position: 'absolute', top: '40px', textAlign: 'center', width: '100%' }}>
-				  <div style={{ fontSize: '24px', fontWeight: 900, color: theme.primary, letterSpacing: '1px', fontFamily: '"Traditional Arabic", serif' }}>
-					نظام ابن عباس - إدارة الشؤون الأكاديمية
-				  </div>
-				  <div style={{ width: '180px', height: '2px', backgroundColor: theme.gold, margin: '12px auto 0', position: 'relative' }}>
-					<div style={{ position: 'absolute', top: '-4px', left: 'calc(50% - 5px)', width: '10px', height: '10px', backgroundColor: theme.primary, transform: 'rotate(45deg)' }}></div>
-				  </div>
-				</div>
-
-				{/* المحتوى */}
-				<div style={{ fontSize: '36px', fontWeight: 'bold', color: theme.gold, marginBottom: '40px', fontFamily: '"Traditional Arabic", serif', borderBottom: `2px dashed ${theme.gold}`, paddingBottom: '16px' }}>
-				  {getTypeLabel(printingItem.type)}
-				</div>
-				<div style={{ fontSize: '42px', lineHeight: 1.8, color: '#111827', textAlign: 'center', maxWidth: '85%', fontFamily: '"Traditional Arabic", serif', fontWeight: 'bold' }}>
-				  {printingItem.text}
-				</div>
-
-				{/* التذييل */}
-				{(printingItem.source || printingItem.date) && (
-				  <div style={{ position: 'absolute', bottom: '50px', fontSize: '28px', color: theme.primary, fontWeight: 'bold', fontFamily: '"Traditional Arabic", serif', display: 'flex', gap: '20px', alignItems: 'center' }}>
-					{printingItem.source && <span>{printingItem.source}</span>}
-					{printingItem.source && printingItem.date && <span style={{color: theme.gold}}>|</span>}
-					{printingItem.date && <span>{printingItem.date}</span>}
-				  </div>
-				)}
-			  </div>
-			</div>
-		  </div>
-		)}
-	  </div>
-
 	</div>
   );
 }

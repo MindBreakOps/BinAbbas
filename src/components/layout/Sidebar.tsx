@@ -33,6 +33,11 @@ export default function Sidebar() {
         { to: '/halaqat', label: 'سجل الحلقات', icon: 'book' },
         { to: '/attendance', label: 'الحضور والغياب', icon: 'cal' },
         { to: '/exams', label: 'الاختبارات', icon: 'file' },
+       
+       
+        { to: '/teachers', label: 'المعلمون والكادر', icon: 'users' },
+        { to: '/teacher-rev', label: 'مقرأة المعلمين', icon: 'book' },
+        { to: '/news', label: 'النشرة', icon: 'news' },
         { to: '/results', label: 'النتائج والأجزاء', icon: 'file' }
       ]
     },
@@ -46,9 +51,7 @@ export default function Sidebar() {
     {
       title: 'الإدارة والمالية',
       links: [
-        { to: '/teachers', label: 'المعلمون والكادر', icon: 'users' },
-        { to: '/teacher-rev', label: 'مقرأة المعلمين', icon: 'book' },
-        { to: '/news', label: 'النشرة', icon: 'news' },
+    
         { 
           label: 'المالية (FMIS)', 
           icon: 'money', 
