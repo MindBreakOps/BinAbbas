@@ -2,7 +2,7 @@ import React from 'react';
 import { 
   Menu, Play, LayoutTemplate, 
   BookOpen, Users, FileText, Wallet, Shield, 
-  ChevronLeft, Quote, MonitorSmartphone, CheckCircle
+  ChevronLeft, Quote, MonitorSmartphone, CheckCircle, Monitor
 } from 'lucide-react';
 
 const theme = {
@@ -62,7 +62,7 @@ export default function OperixLanding() {
 			منصة رقمية متكاملة لإدارة مراكز تحفيظ القرآن الكريم، الحلقات التعليمية، الاختبارات، الشهادات، والإدارة المالية بسلاسة واحترافية.
 		  </p>
 		  
-		  <a href="#mobile-apps" style={{ display: 'inline-flex', alignItems: 'center', gap: '16px', backgroundColor: theme.white, padding: '8px 8px 8px 24px', borderRadius: '999px', boxShadow: theme.shadowSm, border: `1px solid ${theme.borderLight}`, textDecoration: 'none' }}>
+		  <a href="#product-display" style={{ display: 'inline-flex', alignItems: 'center', gap: '16px', backgroundColor: theme.white, padding: '8px 8px 8px 24px', borderRadius: '999px', boxShadow: theme.shadowSm, border: `1px solid ${theme.borderLight}`, textDecoration: 'none' }}>
 			<div style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: theme.accent, color: theme.primary, borderRadius: '50%', border: 'none', cursor: 'pointer' }}>
 			  <Play size={16} fill="currentColor" style={{ marginRight: '4px' }} />
 			</div>
@@ -155,7 +155,7 @@ export default function OperixLanding() {
 			  <p style={{ fontSize: '14px', color: theme.textGray, marginBottom: '16px', lineHeight: 1.6 }}>
 				تطبق جميع التطبيقات مصادقة من خطوتين: يجب إدخال نطاق مساحة العمل قبل الوصول إلى بوابة الدخول الآمنة المخصصة للموظفين والطلاب.
 			  </p>
-			  <a href="#mobile-apps" style={{ background: 'none', border: 'none', color: theme.primary, fontSize: '14px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', padding: 0, textDecoration: 'none' }}>
+			  <a href="#product-display" style={{ background: 'none', border: 'none', color: theme.primary, fontSize: '14px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', padding: 0, textDecoration: 'none' }}>
 				مشاهدة العرض <ChevronLeft size={16} />
 			  </a>
 			</div>
@@ -194,13 +194,23 @@ export default function OperixLanding() {
 		</div>
 	  </section>
 
-	  {/* APP PROMO OR PRODUCT DISPLAY */}
-	  <section id="mobile-apps" style={{ backgroundColor: 'rgba(229, 240, 232, 0.4)', padding: '80px 32px', textAlign: 'center' }}>
-		<h2 style={{ fontSize: '36px', fontWeight: 'bold', color: theme.primary, margin: '0 0 32px 0' }}>
-		  تطبيقات الجوال<br/>(Mobile Apps)
+	  {/* APP PROMO OR PRODUCT DISPLAY (Desktop + Mobile) */}
+	  <section id="product-display" style={{ backgroundColor: 'rgba(229, 240, 232, 0.4)', padding: '80px 32px', textAlign: 'center' }}>
+		<h2 style={{ fontSize: '36px', fontWeight: 'bold', color: theme.primary, margin: '0 0 16px 0' }}>
+		  تجربة متكاملة على جميع الأجهزة
 		</h2>
+		<p style={{ color: theme.textGray, fontSize: '16px', maxWidth: '600px', margin: '0 auto 48px auto', lineHeight: 1.6 }}>
+		  استمتع بإدارة سلسة ومتقدمة عبر منصة الويب الإدارية، وابقَ على اتصال دائم وتفاعل مستمر عبر تطبيق الجوال المخصص.
+		</p>
 		
 		<div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginBottom: '64px' }}>
+		  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', backgroundColor: theme.white, border: `1px solid ${theme.borderLight}`, padding: '12px 24px', borderRadius: '12px', boxShadow: theme.shadowSm }}>
+			<Monitor color={theme.primary} size={24} />
+			<div style={{ textAlign: 'right' }}>
+			  <p style={{ fontSize: '10px', color: theme.textGray, fontWeight: 'bold', textTransform: 'uppercase', margin: 0 }}>نظام الإدارة</p>
+			  <p style={{ fontSize: '14px', fontWeight: 'bold', color: theme.textDark, margin: 0 }}>منصة الويب المركزية</p>
+			</div>
+		  </div>
 		  <a href="https://www.operix-solutions.com/mobile-apps" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', backgroundColor: theme.white, border: `1px solid ${theme.borderLight}`, padding: '12px 24px', borderRadius: '12px', cursor: 'pointer', boxShadow: theme.shadowSm, textDecoration: 'none' }}>
 			<MonitorSmartphone color={theme.primary} size={24} />
 			<div style={{ textAlign: 'right' }}>
@@ -210,10 +220,48 @@ export default function OperixLanding() {
 		  </a>
 		</div>
 
-		<div style={{ display: 'flex', justifyContent: 'center' }}>
-		  <div style={{ width: '256px', height: '500px', backgroundColor: theme.white, borderRadius: '48px', border: '8px solid #111827', boxShadow: theme.shadowMd, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-			 {/* Actual Video Playback Inside Phone Frame */}
-			 <div style={{ width: '100%', height: '100%', backgroundColor: '#000000', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', borderRadius: '36px', overflow: 'hidden' }}>
+		{/* MOCKUPS CONTAINER */}
+		<div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '48px', maxWidth: '1200px', margin: '0 auto' }}>
+		  
+		  {/* DESKTOP MOCKUP */}
+		  <div style={{ flex: '1 1 500px', maxWidth: '800px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+			<div style={{ width: '100%', backgroundColor: '#1f2937', borderRadius: '16px', padding: '4px', boxShadow: theme.shadowMd }}>
+			  {/* Browser Header */}
+			  <div style={{ display: 'flex', gap: '8px', padding: '12px 16px', backgroundColor: '#374151', borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}>
+				<div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#ef4444' }}></div>
+				<div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#f59e0b' }}></div>
+				<div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#10b981' }}></div>
+			  </div>
+			  {/* Screen */}
+			  <div style={{ width: '100%', aspectRatio: '16/9', backgroundColor: '#000', borderBottomLeftRadius: '12px', borderBottomRightRadius: '12px', overflow: 'hidden' }}>
+				<video 
+				  src="src/assets/desktop.mp4" 
+				  autoPlay 
+				  loop 
+				  muted 
+				  playsInline 
+				  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+				/>
+			  </div>
+			</div>
+			{/* Stand */}
+			<div style={{ width: '140px', height: '16px', backgroundColor: '#d1d5db', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px' }}></div>
+			<div style={{ width: '220px', height: '4px', backgroundColor: '#9ca3af', borderRadius: '4px', marginTop: '2px' }}></div>
+		  </div>
+
+		  {/* iPHONE 17 MOCKUP */}
+		  <div style={{ flex: '0 0 auto', display: 'flex', justifyContent: 'center' }}>
+			<div style={{ position: 'relative', width: '270px', height: '560px', backgroundColor: theme.white, borderRadius: '52px', border: '12px solid #1f2937', boxShadow: theme.shadowMd, overflow: 'hidden' }}>
+			  
+			  {/* Dynamic Island (iPhone 17 style - Smaller & Compact) */}
+			  <div style={{ position: 'absolute', top: '10px', left: '50%', transform: 'translateX(-50%)', width: '65px', height: '20px', backgroundColor: '#000000', borderRadius: '10px', zIndex: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 6px', boxSizing: 'border-box' }}>
+				{/* Tiny camera/sensor dots inside for realism */}
+				<div style={{width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#111827'}}></div>
+				<div style={{width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#111827'}}></div>
+			  </div>
+			  
+			  {/* Screen Area */}
+			  <div style={{ width: '100%', height: '100%', backgroundColor: '#000000', borderRadius: '36px', overflow: 'hidden' }}>
 				<video 
 				  src="src/assets/bin-abbas-mobile.MP4" 
 				  autoPlay 
@@ -222,8 +270,10 @@ export default function OperixLanding() {
 				  playsInline 
 				  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
 				/>
-			 </div>
+			  </div>
+			</div>
 		  </div>
+
 		</div>
 	  </section>
 

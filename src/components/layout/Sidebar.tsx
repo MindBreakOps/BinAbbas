@@ -221,7 +221,7 @@ export default function Sidebar() {
           <LogoIcon />
           <div style={styles.brandTextContainer}>
             <h2 style={styles.brandTitle}>نظام ابن عباس</h2>
-            <span style={styles.brandSubtitle}>Operix Solutions</span>
+            <span style={styles.brandSubtitle}>ادارة الحلقات القرآنية</span>
           </div>
         </div>
         <button 
