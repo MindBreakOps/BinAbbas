@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { 
-  Menu, Play, LayoutTemplate, 
+  Play, Pause, Volume2, VolumeX, LayoutTemplate, 
   BookOpen, Users, FileText, Wallet, Shield, 
   ChevronLeft, Quote, MonitorSmartphone, CheckCircle, Monitor
 } from 'lucide-react';
@@ -23,7 +23,131 @@ const theme = {
   fontFamily: '"Tajawal", "Cairo", system-ui, sans-serif'
 };
 
+
+// ── Video player hook ──────────────────────────────────────────
+function useVideoPlayer(autoPlay = true) {
+  const ref = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(autoPlay);
+  const [muted, setMuted]     = useState(true);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+	const v = ref.current;
+	if (!v) return;
+	const onTime = () => setProgress(v.duration ? (v.currentTime / v.duration) * 100 : 0);
+	v.addEventListener('timeupdate', onTime);
+	return () => v.removeEventListener('timeupdate', onTime);
+  }, []);
+
+  const togglePlay = () => {
+	const v = ref.current;
+	if (!v) return;
+	if (v.paused) { v.play(); setPlaying(true); }
+	else          { v.pause(); setPlaying(false); }
+  };
+
+  const toggleMute = () => {
+	const v = ref.current;
+	if (!v) return;
+	v.muted = !v.muted;
+	setMuted(v.muted);
+  };
+
+  const seek = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const v = ref.current;
+	if (!v || !v.duration) return;
+	const pct = Number(e.target.value);
+	v.currentTime = (pct / 100) * v.duration;
+	setProgress(pct);
+  };
+
+  return { ref, playing, muted, progress, togglePlay, toggleMute, seek };
+}
+
+// ── Reusable control bar ───────────────────────────────────────
+interface VideoControlsProps {
+  playing: boolean;
+  muted: boolean;
+  progress: number;
+  onTogglePlay: () => void;
+  onToggleMute: () => void;
+  onSeek: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  primaryColor: string;
+  accentColor: string;
+}
+
+function VideoControls({ playing, muted, progress, onTogglePlay, onToggleMute, onSeek, primaryColor, accentColor }: VideoControlsProps) {
+  return (
+	<div style={{
+	  display: 'flex', alignItems: 'center', gap: '10px',
+	  backgroundColor: '#fff',
+	  border: `1px solid #f3f4f6`,
+	  borderRadius: '999px',
+	  padding: '8px 16px',
+	  boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+	  marginTop: '12px',
+	  width: '100%',
+	  boxSizing: 'border-box' as const,
+	}}>
+	  {/* Play/Pause */}
+	  <button
+		onClick={onTogglePlay}
+		style={{
+		  width: '32px', height: '32px', borderRadius: '50%',
+		  backgroundColor: primaryColor, border: 'none', cursor: 'pointer',
+		  display: 'flex', alignItems: 'center', justifyContent: 'center',
+		  flexShrink: 0,
+		}}
+		aria-label={playing ? 'إيقاف مؤقت' : 'تشغيل'}
+	  >
+		{playing
+		  ? <Pause size={14} color="#fff" fill="#fff" />
+		  : <Play  size={14} color="#fff" fill="#fff" style={{ marginRight: '-2px' }} />}
+	  </button>
+
+	  {/* Scrubber */}
+	  <div style={{ flex: 1, position: 'relative', height: '4px' }}>
+		<div style={{
+		  position: 'absolute', inset: 0, backgroundColor: accentColor,
+		  borderRadius: '999px', overflow: 'hidden',
+		}}>
+		  <div style={{ width: `${progress}%`, height: '100%', backgroundColor: primaryColor, transition: 'width 0.1s linear' }} />
+		</div>
+		<input
+		  type="range" min={0} max={100} step={0.1}
+		  value={progress}
+		  onChange={onSeek}
+		  style={{
+			position: 'absolute', inset: 0, width: '100%', opacity: 0,
+			cursor: 'pointer', margin: 0, height: '100%',
+		  }}
+		  aria-label="شريط التقدم"
+		/>
+	  </div>
+
+	  {/* Mute toggle */}
+	  <button
+		onClick={onToggleMute}
+		style={{
+		  width: '32px', height: '32px', borderRadius: '50%',
+		  backgroundColor: accentColor, border: 'none', cursor: 'pointer',
+		  display: 'flex', alignItems: 'center', justifyContent: 'center',
+		  flexShrink: 0,
+		}}
+		aria-label={muted ? 'تفعيل الصوت' : 'كتم الصوت'}
+	  >
+		{muted
+		  ? <VolumeX size={14} color={primaryColor} />
+		  : <Volume2 size={14} color={primaryColor} />}
+	  </button>
+	</div>
+  );
+}
+
 export default function OperixLanding() {
+  const desktop = useVideoPlayer(true);
+  const mobile  = useVideoPlayer(true);
+
   return (
 	<div dir="rtl" style={{ minHeight: '100vh', backgroundColor: theme.bgMain, fontFamily: theme.fontFamily, color: theme.textDark }}>
 	  
@@ -237,7 +361,8 @@ export default function OperixLanding() {
 			  {/* Screen */}
 			  <div style={{ width: '100%', aspectRatio: '16/9', backgroundColor: '#000', borderBottomLeftRadius: '12px', borderBottomRightRadius: '12px', overflow: 'hidden' }}>
 				<video 
-				  src="src/assets/desktop.mp4" 
+				  ref={desktop.ref}
+				  src={desktopVideo} 
 				  autoPlay 
 				  loop 
 				  muted 
@@ -249,10 +374,20 @@ export default function OperixLanding() {
 			{/* Stand */}
 			<div style={{ width: '140px', height: '16px', backgroundColor: '#d1d5db', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px' }}></div>
 			<div style={{ width: '220px', height: '4px', backgroundColor: '#9ca3af', borderRadius: '4px', marginTop: '2px' }}></div>
+			<VideoControls
+			  playing={desktop.playing}
+			  muted={desktop.muted}
+			  progress={desktop.progress}
+			  onTogglePlay={desktop.togglePlay}
+			  onToggleMute={desktop.toggleMute}
+			  onSeek={desktop.seek}
+			  primaryColor={theme.primary}
+			  accentColor={theme.accent}
+			/>
 		  </div>
 
 		  {/* iPHONE 17 MOCKUP */}
-		  <div style={{ flex: '0 0 auto', display: 'flex', justifyContent: 'center' }}>
+		  <div style={{ flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '270px' }}>
 			<div style={{ position: 'relative', width: '270px', height: '560px', backgroundColor: theme.white, borderRadius: '52px', border: '12px solid #1f2937', boxShadow: theme.shadowMd, overflow: 'hidden' }}>
 			  
 			  {/* Dynamic Island (iPhone 17 style - Smaller & Compact) */}
@@ -265,7 +400,8 @@ export default function OperixLanding() {
 			  {/* Screen Area */}
 			  <div style={{ width: '100%', height: '100%', backgroundColor: '#000000', borderRadius: '36px', overflow: 'hidden' }}>
 				<video 
-				  src="src/assets/bin-abbas-mobile.MP4" 
+				  ref={mobile.ref}
+				  src={mobileVideo} 
 				  autoPlay 
 				  loop 
 				  muted 
@@ -274,6 +410,16 @@ export default function OperixLanding() {
 				/>
 			  </div>
 			</div>
+		  <VideoControls
+			  playing={mobile.playing}
+			  muted={mobile.muted}
+			  progress={mobile.progress}
+			  onTogglePlay={mobile.togglePlay}
+			  onToggleMute={mobile.toggleMute}
+			  onSeek={mobile.seek}
+			  primaryColor={theme.primary}
+			  accentColor={theme.accent}
+			/>
 		  </div>
 
 		</div>
