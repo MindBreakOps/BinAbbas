@@ -4,7 +4,9 @@ import {
   BookOpen, Users, FileText, Wallet, Shield, 
   ChevronLeft, Quote, MonitorSmartphone, CheckCircle, Monitor
 } from 'lucide-react';
-
+// استدعاء ملفات الفيديو ليتم معالجتها في بيئة الإنتاج (Production)
+import desktopVideo from '../assets/desktop.mp4';
+import mobileVideo from '../assets/bin-abbas-mobile.MP4';
 const theme = {
   bgMain: '#F8FAF9',
   primary: '#2D5948',
